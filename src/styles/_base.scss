@@ -1,0 +1,19 @@
+:root {
+  --mc1: #01a3f4;
+  --mc2: #feeb1a;
+  --hc: #fff;
+  --bc: #fff;
+  --hff: 'Heebo', sans-serif;
+  --bff: 'Nunito', sans-serif;
+}
+@import url('https://fonts.googleapis.com/css2?family=Play&display=swap');
+
+html {
+  font-family: 'Play', sans-serif;
+  scroll-behavior: smooth !important;
+
+}
+body {
+  background-color: black !important;
+  overflow-y: scroll;
+}
