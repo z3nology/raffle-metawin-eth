@@ -33,10 +33,8 @@ export default function Card({
               <img src={fileSrc} className="w-full h-full rounded-xl" alt="" />
             ) : (
               <video
-                className="transition-all max-w-none w-full h-full -top-[1px] object-cover block relative z-10 rounded-t-lg"
+                className="relative z-10 object-cover w-full h-full transition-all rounded-xl"
                 title="Image of KILLABEARS"
-                width="350"
-                height="350"
                 playsInline
                 loop
                 disableRemotePlayback
