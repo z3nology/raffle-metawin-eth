@@ -15,7 +15,6 @@ export default function Header() {
   // const [open, setOpen] = useState(false);
 
   const { account, chainId, activate, deactivate } = useWeb3React();
-
   async function connect() {
     if (chainId !== 1 || chainId === undefined) {
       switchNetwork();
@@ -83,7 +82,29 @@ export default function Header() {
             <DiscordIcon color="#00d1ff" />
           </div>
         </div>
-        <div className="justify-center block text-center lg:text-left lg:mx-0 lg:flex lg:pl-4">
+        <div className="justify-center block gap-5 text-center lg:text-left lg:mx-0 lg:flex lg:pl-4">
+          <div className="flex items-center justify-center gap-4">
+            <Link href={"/"} passHref>
+              <li
+                className={`text-lg font-normal ${
+                  router.pathname === "/" ? "text-cyan-500" : "text-white"
+                } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+              >
+                competition
+              </li>
+            </Link>
+            <Link href={"/createraffle"} passHref>
+              <li
+                className={`text-lg font-normal ${
+                  router.pathname === "/createraffle"
+                    ? "text-cyan-500"
+                    : "text-white"
+                } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+              >
+                create raffle
+              </li>
+            </Link>
+          </div>
           {account ? (
             <button
               className="text-sm py-3 px-6 bg-slate-800 border-2 border-cyan-500 text-white rounded-full tracking-widest uppercase hover:bg-slate-900 hover:border-cyan-200 transition-all focus:bg-slate-800 focus:border-cyan-200 relative shadow-[0_0_2px_0] shadow-cyan-500 disabled:bg-slate-800 disabled:hover:bg-slate-800"
