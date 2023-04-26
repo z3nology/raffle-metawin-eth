@@ -10,7 +10,7 @@ import Head2HeadsData from "../components/Head2HeadsData";
 const Home: NextPage = () => {
   const { account } = useWeb3React();
   return (
-    <main className="px-10">
+    <main className="px-2 lg:px-10">
       <BlueChipsData />
       <UpNextData />
       <WinBoxData />

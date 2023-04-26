@@ -4,7 +4,20 @@ import { useState } from "react";
 import CompetitionModal from "./CompetitionModal";
 import Link from "next/link";
 
-export default function Card() {
+type CardProps = {
+  fileSrc: string;
+  type: string;
+  name: string;
+  price: string;
+  entries: string;
+};
+export default function Card({
+  fileSrc,
+  type,
+  name,
+  price,
+  entries,
+}: CardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   function openModal() {
@@ -16,11 +29,25 @@ export default function Card() {
       <div className="rounded-xl relative bg-white hover:scale-[1.03] duration-300 transition-all z-10">
         <Link href={`/competition`} passHref>
           <div className="relative z-0 w-full overflow-hidden cursor-pointer group">
-            <img
-              src="/img/cardImg.png"
-              className="w-full h-full rounded-xl"
-              alt=""
-            />
+            {type === "image" ? (
+              <img src={fileSrc} className="w-full h-full rounded-xl" alt="" />
+            ) : (
+              <video
+                className="transition-all max-w-none w-full h-full -top-[1px] object-cover block relative z-10 rounded-t-lg"
+                title="Image of KILLABEARS"
+                width="350"
+                height="350"
+                playsInline
+                loop
+                disableRemotePlayback
+                draggable={false}
+                preload="metadata"
+                autoPlay
+                muted
+              >
+                <source src={fileSrc} type="video/mp4" />
+              </video>
+            )}
             <div className="absolute px-2 text-sm font-bold text-gray-500 bg-white rounded-full bottom-1 left-1">
               #5304
             </div>
@@ -36,10 +63,10 @@ export default function Card() {
         </Link>
         <div className="z-30">
           <p className="relative z-30 pt-2 font-bold text-center text-gray-500 text-md">
-            Mutant Ape Yacht
+            {name}
           </p>
           <h1 className="relative z-30 py-1 text-2xl font-bold text-center text-black">
-            $53,500
+            ${price}
           </h1>
           <div className="z-30 w-full px-3">
             <button
@@ -50,7 +77,7 @@ export default function Card() {
             </button>
           </div>
           <p className="text-gray-400 text-[11px] font-bold text-center uppercase py-3 z-30">
-            JOIN 147 METAWINNERS
+            {entries}
           </p>
         </div>
       </div>
