@@ -2,6 +2,10 @@ import { useWeb3React } from "@web3-react/core";
 import NftCard from "../components/NftCard";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import CreateRaffleModal from "../components/CreateRaffleModal";
+import { CircleLoader, PacmanLoader, PulseLoader } from "react-spinners";
+import Loader from "react-spinners/BounceLoader";
+import { errorAlert } from "../components/toastGroup";
 
 type NftDataType = {
   mintId: string;
@@ -16,13 +20,16 @@ export default function CreateRaffle() {
   const { account } = useWeb3React();
 
   const [nftData, setNftData] = useState<NftDataType[]>([]);
+  const [loadingState, setLoadingState] = useState<Boolean>(false);
+  const [collateralIDArray, setCollateralIDArray] = useState<number[]>([]);
 
   const getNfts = async (address: string) => {
+    setLoadingState(true);
     const optionsGoerli = {
       method: "GET",
       url: `https://deep-index.moralis.io/api/v2/${address}/nft`,
       params: {
-        chain: "goerli",
+        chain: "sepolia",
         format: "decimal",
         limit: "100",
         normalizeMetadata: "false",
@@ -43,12 +50,7 @@ export default function CreateRaffle() {
         ...nft,
         type: "goerli",
       }));
-      //   const mumbaiNfts = (responseMumbai.data.result as TokenAPISimple[]).map(
-      //     (nft) => ({ ...nft, type: "mumbai" })
-      //   );
-      //   const bscNfts = (responseBsc.data.result as TokenAPISimple[]).map(
-      //     (nft) => ({ ...nft, type: "bsc" })
-      //   );
+
       const combinedResults = [...goerliNfts];
 
       const metadataResults = combinedResults.filter((n: any) => n.metadata);
@@ -61,7 +63,6 @@ export default function CreateRaffle() {
           const filename = pp.slice(3).join("/");
           const hostname = "https://ipfs.io/ipfs/";
           image = hostname + cid + (filename ? "/" + filename : "");
-          console.log(image, "=========");
         }
 
         return {
@@ -74,9 +75,10 @@ export default function CreateRaffle() {
         };
       });
 
-      console.log("nftData------>", tokens);
-      //   //@ts-ignore
+      console.log(tokens);
+
       setNftData(tokens);
+      setLoadingState(false);
       //   return metadataResults;
     } catch (error) {
       console.error(error);
@@ -87,18 +89,71 @@ export default function CreateRaffle() {
     if (account) {
       getNfts(account);
     }
+    // eslint-disable-next-line
   }, [account]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    if (collateralIDArray.length === 0) {
+      errorAlert("Please choose the NFTs to create raffle!");
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleAddNFTsForRaffle = (nftId: number) => {
+    if (collateralIDArray.includes(nftId)) {
+      setCollateralIDArray(collateralIDArray.filter((id) => id !== nftId));
+    } else {
+      setCollateralIDArray([...collateralIDArray, nftId]);
+    }
+  };
 
   return (
     <div className="w-full px-5 mt-20 ">
       <h1 className="text-2xl font-normal text-white uppercase">
         my nft lists
       </h1>
-      <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-3">
-        {nftData?.map((data, index) => (
-          <NftCard key={index} tokenId={data.mintId} imgUrl={data.image} />
-        ))}
-      </div>
+      {loadingState && (
+        <div className="fixed top-0 bottom-0 left-0 right-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <PulseLoader color="white" />
+        </div>
+      )}
+      {!loadingState && (
+        <>
+          <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 2xl:grid-cols-8 lg:grid-cols-4 md:grid-cols-3">
+            {nftData?.map((data, index) => (
+              <NftCard
+                key={index}
+                tokenId={data.mintId}
+                imgUrl={data.image}
+                collateralIDArray={collateralIDArray}
+                onAddNFTsForRaffle={() =>
+                  handleAddNFTsForRaffle(Number(data.mintId))
+                }
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-center w-full">
+            <button
+              className="text-sm py-3 px-6 bg-slate-800 border-2 border-cyan-500 text-white rounded-full tracking-widest uppercase hover:bg-slate-900 hover:border-cyan-200 transition-all focus:bg-slate-800 focus:border-cyan-200 relative shadow-[0_0_2px_0] shadow-cyan-500 disabled:bg-slate-800 disabled:hover:bg-slate-800"
+              onClick={() => handleOpenModal()}
+            >
+              <span className="transition-all">
+                <span className="pr-3">{`+ Create Raffle`}</span>
+              </span>
+            </button>
+          </div>
+        </>
+      )}
+      <CreateRaffleModal
+        isOpen={isModalOpen}
+        collateralIDArray={collateralIDArray}
+        closeModal={() => setIsModalOpen(false)}
+        startLoading={() => setLoadingState(true)}
+        endLoading={() => setLoadingState(false)}
+      />
     </div>
   );
 }

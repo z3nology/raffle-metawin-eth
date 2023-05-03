@@ -1,13 +1,13 @@
 import { InjectedConnector } from "@web3-react/injected-connector";
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1],
+  supportedChainIds: [11155111],
 });
 
 const switchNetworkRequest = () =>
   (window as any).ethereum.request({
     method: "wallet_switchEthereumChain",
-    params: [{ chainId: "0x1" }],
+    params: [{ chainId: "0xAA36A7" }],
   });
 
 const addNetworkRequest = () =>
@@ -15,10 +15,10 @@ const addNetworkRequest = () =>
     method: "wallet_addEthereumChain",
     params: [
       {
-        chainId: "0x1",
-        chainName: "Ethereum Mainnet",
-        rpcUrls: ["https://mainnet.infura.io/v3/"],
-        blockExplorerUrls: ["https://etherscan.io"],
+        chainId: "0xAA36A7",
+        chainName: "Sepolia",
+        rpcUrls: ["https://eth-sepolia.public.blastapi.io"],
+        blockExplorerUrls: ["hhttps://sepolia.etherscan.io"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",
