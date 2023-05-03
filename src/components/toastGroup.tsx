@@ -3,11 +3,11 @@ import "react-toastify/dist/ReactToastify.css";
 
 export const errorAlert = (text: string) => {
   toast.error(text, {
-    position: "top-right",
-    autoClose: 5000,
+    position: "top-center",
+    autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
-    pauseOnHover: true,
+    pauseOnHover: false,
     draggable: true,
     theme: "colored",
   });
@@ -40,7 +40,7 @@ export const warningAlert = (text: string) => {
 
 export const successAlert = (text: string) => {
   toast.success(text, {
-    position: "top-right",
+    position: "top-center",
     autoClose: 5000,
     hideProgressBar: false,
     closeOnClick: true,

@@ -62,7 +62,7 @@ export default function Header() {
     <nav className="fixed top-0 left-0 z-30 w-full transition-all duration-500 bg-black nav-main lg:border-cyan-500 lg:border-b lg:px-7 before:w-full before:h-full before:absolute before:-z-10 before:left-0 before:backdrop-blur-md before:transition-all before:duration-500 lg:before:hidden lg:backdrop-blur-md lg:bg-slate-900">
       <div className={"w-full flex justify-between items-center px-2 "}>
         <div className="flex justify-center lg:items-center border-b border-transparent bg-black transition-all lg:!bg-transparent lg:border-0  lg:border-cyan-500">
-          <div className="text-center grow-0">
+          <div className="text-center grow-0 hidden md:block">
             <div
               aria-current="page"
               className="router-link-active router-link-exact-active inline-block w-[138px] mx-1 lg:w-[165px] cursor-pointer"
@@ -78,11 +78,11 @@ export default function Header() {
               </Link>
             </div>
           </div>
-          <div className="flex items-center justify-center px-3">
+          <div className="items-center justify-center px-3 hidden md:flex">
             <DiscordIcon color="#00d1ff" />
           </div>
         </div>
-        <div className="justify-center block gap-5 text-center lg:text-left lg:mx-0 lg:flex lg:pl-4">
+        <div className="flex justify-center gap-5 text-center lg:text-left lg:mx-0 lg:pl-4">
           <div className="flex items-center justify-center gap-4">
             <Link href={"/"} passHref>
               <li

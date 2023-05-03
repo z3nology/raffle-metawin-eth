@@ -14,7 +14,7 @@ export default function WalletModal({ isOpen, closeModal }: Props) {
   const { account, chainId, activate, deactivate } = useWeb3React();
 
   async function connect() {
-    if (chainId !== 1 || chainId === undefined) {
+    if (chainId !== 11155111 || chainId === undefined) {
       switchNetwork();
     }
     try {
