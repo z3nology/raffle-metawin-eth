@@ -118,6 +118,25 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "uint256",
         "name": "raffleId",
         "type": "uint256"
@@ -213,7 +232,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "idFromMetawin",
+        "name": "idRaffle",
         "type": "uint256"
       },
       {
@@ -476,6 +495,7 @@
   },
   {
     "inputs": [
+      { "internalType": "uint256", "name": "_endTime", "type": "uint256" },
       {
         "internalType": "uint256",
         "name": "_desiredFundsInWeis",
@@ -494,6 +514,11 @@
       {
         "internalType": "uint256[]",
         "name": "_collateralId",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tokenAmount",
         "type": "uint256[]"
       },
       {
@@ -619,6 +644,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getCurrentTime",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "uint256", "name": "_raffleId", "type": "uint256" }
     ],
@@ -636,6 +668,57 @@
         "internalType": "struct Raffletest.EntriesBought[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_raffleId", "type": "uint256" }
+    ],
+    "name": "getRaffleData",
+    "outputs": [
+      {
+        "internalType": "enum Raffletest.STATUS",
+        "name": "status",
+        "type": "uint8"
+      },
+      { "internalType": "uint256", "name": "maxEntries", "type": "uint256" },
+      {
+        "internalType": "address[]",
+        "name": "collateralAddress",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "collateralId",
+        "type": "uint256[]"
+      },
+      { "internalType": "address", "name": "winner", "type": "address" },
+      { "internalType": "uint256", "name": "randomNumber", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountRaised", "type": "uint256" },
+      { "internalType": "address", "name": "seller", "type": "address" },
+      {
+        "internalType": "uint256",
+        "name": "platformPercentage",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "entriesLength", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "cancellingDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address[]",
+        "name": "collectionWhitelist",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "collectionFreeTickets",
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -700,6 +783,25 @@
   },
   {
     "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "bytes", "name": "", "type": "bytes" }
+    ],
+    "name": "onERC721Received",
+    "outputs": [{ "internalType": "bytes4", "name": "", "type": "bytes4" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       { "internalType": "uint256", "name": "", "type": "uint256" },
       { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
@@ -713,36 +815,18 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "raffles",
-    "outputs": [
-      {
-        "internalType": "enum Raffletest.STATUS",
-        "name": "status",
-        "type": "uint8"
-      },
-      { "internalType": "uint256", "name": "maxEntries", "type": "uint256" },
-      { "internalType": "address", "name": "winner", "type": "address" },
-      { "internalType": "uint256", "name": "randomNumber", "type": "uint256" },
-      { "internalType": "uint256", "name": "amountRaised", "type": "uint256" },
-      { "internalType": "address", "name": "seller", "type": "address" },
-      {
-        "internalType": "uint256",
-        "name": "platformPercentage",
-        "type": "uint256"
-      },
-      { "internalType": "uint256", "name": "entriesLength", "type": "uint256" },
-      { "internalType": "uint256", "name": "cancellingDate", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       { "internalType": "bytes32", "name": "requestId", "type": "bytes32" },
       { "internalType": "uint256", "name": "randomness", "type": "uint256" }
     ],
     "name": "rawFulfillRandomness",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -816,6 +900,22 @@
     ],
     "name": "supportsInterface",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "userCreateRaffleCollections",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   }

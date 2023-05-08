@@ -18,7 +18,7 @@ const addNetworkRequest = () =>
         chainId: "0xAA36A7",
         chainName: "Sepolia",
         rpcUrls: ["https://eth-sepolia.public.blastapi.io"],
-        blockExplorerUrls: ["hhttps://sepolia.etherscan.io"],
+        blockExplorerUrls: ["https://sepolia.etherscan.io"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",

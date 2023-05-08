@@ -17,3 +17,11 @@ body {
   background-color: black !important;
   overflow-y: scroll;
 }
+
+.react-datetime-picker__wrapper {
+  border: none !important;
+  background-color: #1F2937;
+  border-radius: 7px;
+  padding: 7px 5px;
+  color: #6E7683;
+}

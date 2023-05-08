@@ -40,12 +40,14 @@ export default function CreateRaffleModal({
   const { account } = useWeb3React();
 
   const [loadingState, setLoadingState] = useState<boolean>(false);
-
+  const [endTimeStamp, setEndTimeStamp] = useState(0);
   const [desiredFundsInWeis, setDesiredFundsInWeis] = useState<number>(0);
   const [maxEntriesPerUser, setMaxEntriesPerUser] = useState<number>(1);
   const [collateralAddrDatas, setCollateralAddrDatas] = useState<string[]>([
     "",
   ]);
+  const [tokenAmount, setTokenAmount] = useState<number[]>([0]);
+
   const [minimumFundsInWeis, setMinimumFundsInWeis] = useState<number>(0);
   const [prices, setPrices] = useState<priceType[]>([]);
   const [commissionInBasicPoints, setCommissionInBasicPoints] =
@@ -74,54 +76,43 @@ export default function CreateRaffleModal({
 
   // Define the createRaffle function
   const handleCreateRaffleFunc = async () => {
-    startLoading();
-    await NFTCONTRACT.createRaffle(
-      desiredFundsInWeis,
-      maxEntriesPerUser,
-      collateralAddrDatas,
-      collateralIDArray,
-      minimumFundsInWeis,
-      prices,
-      commissionInBasicPoints,
-      collectionWhitelist,
-      collectionFreeTickets,
-      { gasLimit: 1000000 }
-    )
-      .then((tx: any) => {
-        tx.wait()
-          .then(() => {
-            successAlert("Created Successful.");
-            closeModal();
-            endLoading();
-          })
-          .catch(() => {
-            errorAlert("Create Failed.");
-            endLoading();
-          });
-      })
-      .catch(() => {
-        errorAlert("Create Failed.");
-        endLoading();
-      });
-  };
-
-  const getCreatedRaffles = async () => {
-    await NFTCONTRACT.raffles(1).then((data: any) => {
-      console.log(data.length);
-    });
-  };
-
-  useEffect(() => {
-    if (account) {
-      getCreatedRaffles();
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    if (endTimeStamp < currentTimestamp) {
+      errorAlert("EndTime must be!");
+    } else {
+      startLoading();
+      await NFTCONTRACT.createRaffle(
+        endTimeStamp,
+        desiredFundsInWeis,
+        maxEntriesPerUser,
+        collateralAddrDatas,
+        collateralIDArray,
+        tokenAmount,
+        minimumFundsInWeis,
+        prices,
+        commissionInBasicPoints,
+        collectionWhitelist,
+        collectionFreeTickets,
+        { gasLimit: 1000000 }
+      )
+        .then((tx: any) => {
+          tx.wait()
+            .then(() => {
+              successAlert("Created Successful.");
+              closeModal();
+              endLoading();
+            })
+            .catch(() => {
+              errorAlert("Create Failed.");
+              endLoading();
+            });
+        })
+        .catch(() => {
+          errorAlert("Create Failed.");
+          endLoading();
+        });
     }
-
-    // eslint-disable-next-line
-  }, [account]);
-
-  useEffect(() => {
-    console.log(prices);
-  }, [prices]);
+  };
 
   // Set the div of price div
   const inputFields = [];
@@ -168,6 +159,11 @@ export default function CreateRaffleModal({
     setCommissionInBasicPoints(0);
     setCollectionWhiteList([""]);
     setCollectionFreeTickets([""]);
+  };
+
+  const getDateTime = (e: any) => {
+    const timeStamp = Date.parse(e);
+    setEndTimeStamp(Math.floor(timeStamp / 1000));
   };
 
   return (
@@ -219,6 +215,14 @@ export default function CreateRaffleModal({
                     {`+ Create Raffle`}
                   </Dialog.Title>
                   <div className="flex flex-col w-full gap-4 mt-4">
+                    <input
+                      type="datetime-local"
+                      id="datetime"
+                      name="datetime"
+                      className="px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
+                      onChange={(e) => getDateTime(e.target.value)}
+                    />
+
                     <input
                       className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
                       type="number"
@@ -298,6 +302,23 @@ export default function CreateRaffleModal({
                       value={collateralIDArray.toString()}
                       readOnly
                     />
+                    {collateralIDArray.map((data, index) => (
+                      <input
+                        key={index}
+                        className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
+                        type="number"
+                        placeholder="_tokenAmount"
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setTokenAmount((prevState) => {
+                            const updatedArray = [...prevState];
+                            updatedArray[index] = value;
+                            return updatedArray;
+                          });
+                        }}
+                      />
+                    ))}
+
                     <input
                       className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
                       type="number"
@@ -364,6 +385,7 @@ export default function CreateRaffleModal({
                       </div>
                     ))} */}
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
+                    {}
 
                     <input
                       className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
