@@ -1,40 +1,48 @@
+import { useContext } from "react";
+import { ethers } from "ethers";
 import Card from "./Card";
+import { CONTRACT_ADDR } from "../config";
+import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
+import { useWeb3React } from "@web3-react/core";
+import { useEffect, useState } from "react";
+import { PulseLoader } from "react-spinners";
+import { RaffleDataContext } from "../context/RaffleDataProvider";
 
 export default function BlueChipsData() {
+  const { account } = useWeb3React();
+
+  const { createdRaffleData, raffleDataState } = useContext(RaffleDataContext);
+
   return (
-    <div className="mt-20 min-h-[20vh]">
+    <div className="mt-20 min-h-[20vh] px-4">
       <h1 className="block mb-2 text-lg font-bold leading-none tracking-wider text-white uppercase lg:text-2xl category-title">
         blue chips
       </h1>
-      <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-3">
-        {blueChipData?.map((data, index) => (
+      <div className="grid w-full grid-cols-1 gap-5 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-6 lg:grid-cols-4 md:grid-cols-3">
+        {createdRaffleData?.map((data, index) => (
           <Card
             key={index}
-            fileSrc={data.src}
+            raffleId={index}
+            amountRaised={data.amountRaised} // Convert to string before passing to Card
+            cancellingDate={data.cancellingDate} // Convert to string before passing to Card
+            collateralAddress={data.collateralAddress}
+            collateralId={data.collateralId}
+            collectionWhitelist={data.collectionWhitelist}
+            creator={data.creator}
+            endTime={Number(data.endTime)}
+            entriesLength={Number(data.entriesLength)}
+            maxEntries={Number(data.maxEntries)}
+            randomNumber={Number(data.randomNumber)}
+            status={Number(data.status)}
             type={data.type}
-            name={data.name}
-            price={data.price}
-            entries={data.entries}
           />
         ))}
       </div>
+      {raffleDataState && (
+        <div className="fixed top-0 bottom-0 left-0 right-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <PulseLoader color="white" />
+        </div>
+      )}
     </div>
   );
 }
-
-const blueChipData = [
-  {
-    src: "https://i.seadn.io/gcs/files/1b097aa129c54e47c23fb368766e00a5.png?w=350&auto=format",
-    type: "image",
-    name: "Head to Head - 0.5ETH",
-    price: "1000",
-    entries: "1 OF 2 MAX ENTRIES",
-  },
-  {
-    src: "https://i.seadn.io/gcs/files/1cab04d749c901a29fbad11e95cd6f33.png?w=350&auto=format1",
-    type: "image",
-    name: "Head to Head - 0.5ETH",
-    price: "1000",
-    entries: "1 OF 2 MAX ENTRIES",
-  },
-];

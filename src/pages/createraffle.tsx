@@ -111,7 +111,7 @@ export default function CreateRaffle() {
   };
 
   return (
-    <div className="w-full px-5 mt-20 ">
+    <div className="w-full px-5 mt-20">
       <h1 className="text-2xl font-normal text-white uppercase">
         my nft lists
       </h1>
@@ -122,18 +122,27 @@ export default function CreateRaffle() {
       )}
       {!loadingState && (
         <>
-          <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 2xl:grid-cols-8 lg:grid-cols-4 md:grid-cols-3">
-            {nftData?.map((data, index) => (
-              <NftCard
-                key={index}
-                tokenId={data.mintId}
-                imgUrl={data.image}
-                collateralIDArray={collateralIDArray}
-                onAddNFTsForRaffle={() =>
-                  handleAddNFTsForRaffle(Number(data.mintId))
-                }
-              />
-            ))}
+          <div className="w-full min-h-[30vh] flex items-center justify-center flex-col">
+            {nftData.length === 0 && (
+              <div className="flex items-center justify-center w-full">
+                <h1 className="text-2xl font-normal text-center text-white uppercase">
+                  Nothing to show
+                </h1>
+              </div>
+            )}
+            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 2xl:grid-cols-8 lg:grid-cols-4 md:grid-cols-3">
+              {nftData?.map((data, index) => (
+                <NftCard
+                  key={index}
+                  tokenId={data.mintId}
+                  imgUrl={data.image}
+                  collateralIDArray={collateralIDArray}
+                  onAddNFTsForRaffle={() =>
+                    handleAddNFTsForRaffle(Number(data.mintId))
+                  }
+                />
+              ))}
+            </div>
           </div>
           <div className="flex items-center justify-center w-full">
             <button

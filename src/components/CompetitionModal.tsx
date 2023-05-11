@@ -1,14 +1,87 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { Dialog, Transition } from "@headlessui/react";
+import { useWeb3React } from "@web3-react/core";
+import { ethers } from "ethers";
 import { Fragment, useState } from "react";
+import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
+import { CONTRACT_ADDR } from "../config";
+import { errorAlert, successAlert } from "./toastGroup";
+import { PulseLoader } from "react-spinners";
 
 interface Props {
   isOpen: boolean;
   closeModal: () => void;
+  raffleId: number;
+  amountRaised: Number;
+  cancellingDate: Number;
+  collateralAddress: String[];
+  collateralId: String[];
+  collectionWhitelist: String[];
+  creator: String;
+  endTime: Number;
+  entriesLength: Number;
+  maxEntries: Number;
+  randomNumber: Number;
+  status: Number;
+  type: string;
 }
 
-export default function CompetitionModal({ isOpen, closeModal }: Props) {
+export default function CompetitionModal({
+  isOpen,
+  closeModal,
+  raffleId,
+  collateralAddress,
+  collateralId,
+}: Props) {
+  const { account } = useWeb3React();
+  const [raffleDataState, setRaffleDataState] = useState(false);
+  interface WindowWithEthereum extends Window {
+    ethereum?: any;
+  }
+
+  // Get raffle contract
+  const provider =
+    typeof window !== "undefined" && (window as WindowWithEthereum).ethereum
+      ? new ethers.providers.Web3Provider(
+          (window as WindowWithEthereum).ethereum
+        )
+      : null;
+  const Signer = provider?.getSigner();
+
+  const NFTCONTRACT = new ethers.Contract(
+    CONTRACT_ADDR,
+    RaffleCOTRACTABI,
+    Signer
+  );
+
+  const buyEntry = async () => {
+    setRaffleDataState(true);
+
+    await NFTCONTRACT.buyEntry(
+      raffleId,
+      1,
+      collateralAddress[0],
+      collateralId[0],
+      { value: ethers.utils.parseEther((0.05).toString()) }
+    )
+      .then((Tx: any) => {
+        Tx.wait()
+          .then(() => {
+            successAlert("Buy Successful.");
+            setRaffleDataState(false);
+          })
+          .catch(() => {
+            errorAlert("Buy failed.");
+            setRaffleDataState(false);
+          });
+      })
+      .catch(() => {
+        errorAlert("Buy failed.");
+        setRaffleDataState(false);
+      });
+  };
+
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -57,7 +130,10 @@ export default function CompetitionModal({ isOpen, closeModal }: Props) {
                       <h1 className="text-xl font-bold text-white uppercase">
                         entry
                       </h1>
-                      <button className="w-full py-3 my-3 font-bold text-white bg-blue-600 rounded-full">
+                      <button
+                        className="w-full py-3 my-3 font-bold text-white bg-blue-600 rounded-full"
+                        onClick={() => buyEntry()}
+                      >
                         0.024
                       </button>
                     </div>
@@ -187,6 +263,11 @@ export default function CompetitionModal({ isOpen, closeModal }: Props) {
           </div>
         </Dialog>
       </Transition>
+      {raffleDataState && (
+        <div className="fixed top-0 bottom-0 left-0 right-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <PulseLoader color="white" />
+        </div>
+      )}
     </>
   );
 }
