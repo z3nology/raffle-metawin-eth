@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
+import RaffleDataProvider from "../context/RaffleDataProvider";
 
 function StakingApp({ Component, pageProps }) {
   const getLibrary = (provider) => {
@@ -28,10 +29,12 @@ function StakingApp({ Component, pageProps }) {
       transition={{ ease: "easeInOut", duration: 0.9, delay: 0.2 }}
     >
       <Web3ReactProvider getLibrary={getLibrary} chainId={getChainId}>
-        <Header />
-        <Component {...pageProps} />
-        <ToastContainer style={{ fontSize: 14 }} />
-        {/* <Footer /> */}
+        <RaffleDataProvider>
+          <Header />
+          <Component {...pageProps} />
+          <ToastContainer style={{ fontSize: 14 }} />
+          {/* <Footer /> */}
+        </RaffleDataProvider>
       </Web3ReactProvider>
     </motion.section>
   );

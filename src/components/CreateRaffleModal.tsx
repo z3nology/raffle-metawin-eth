@@ -49,13 +49,12 @@ export default function CreateRaffleModal({
   const [tokenAmount, setTokenAmount] = useState<number[]>([0]);
 
   const [minimumFundsInWeis, setMinimumFundsInWeis] = useState<number>(0);
-  const [prices, setPrices] = useState<priceType[]>([]);
+  const [prices, setPrices] = useState<priceType[]>([
+    { id: 0, numEntries: 0, price: 0 },
+  ]);
   const [commissionInBasicPoints, setCommissionInBasicPoints] =
     useState<number>(0);
   const [collectionWhitelist, setCollectionWhiteList] = useState<string[]>([
-    "",
-  ]);
-  const [collectionFreeTickets, setCollectionFreeTickets] = useState<string[]>([
     "",
   ]);
 
@@ -90,9 +89,7 @@ export default function CreateRaffleModal({
         tokenAmount,
         minimumFundsInWeis,
         prices,
-        commissionInBasicPoints,
         collectionWhitelist,
-        collectionFreeTickets,
         { gasLimit: 1000000 }
       )
         .then((tx: any) => {
@@ -137,6 +134,9 @@ export default function CreateRaffleModal({
           placeholder="_prices"
           onChange={(e) => handleInputChange(i, "price", e.target.value)}
         />
+        <div className="text-2xl text-white cursor-pointer">{" x "}</div>
+
+        <div className="text-3xl text-white cursor-pointer">{" + "}</div>
       </div>
     );
   }
@@ -146,8 +146,40 @@ export default function CreateRaffleModal({
     field: keyof priceType,
     value: string
   ) => {
+    let parsedValue: string | ethers.BigNumber;
+
+    if (field === "price") {
+      parsedValue = ethers.utils.parseEther(value.toString());
+    } else {
+      parsedValue = value;
+    }
+
     const updatedPrices = [...prices];
-    updatedPrices[index] = { ...updatedPrices[index], [field]: Number(value) };
+    updatedPrices[index] = { ...updatedPrices[index], [field]: parsedValue };
+    setPrices(updatedPrices);
+  };
+
+  // add new price object by clicking the '+'
+  const handleAddPrice = () => {
+    setPrices([
+      ...prices,
+      {
+        id: 0,
+        numEntries: 0,
+        price: 0,
+      },
+    ]);
+  };
+
+  // remove price object at given index by clicking the 'x'
+  const handleRemovePrice = (index: number) => {
+    if (prices.length === 1) {
+      // cannot delete if only one price object left
+      return;
+    }
+
+    const updatedPrices = [...prices];
+    updatedPrices.splice(index, 1);
     setPrices(updatedPrices);
   };
 
@@ -158,13 +190,16 @@ export default function CreateRaffleModal({
     setMinimumFundsInWeis(0);
     setCommissionInBasicPoints(0);
     setCollectionWhiteList([""]);
-    setCollectionFreeTickets([""]);
   };
 
   const getDateTime = (e: any) => {
     const timeStamp = Date.parse(e);
     setEndTimeStamp(Math.floor(timeStamp / 1000));
   };
+
+  useEffect(() => {
+    console.log("prices", prices);
+  }, [prices]);
 
   return (
     <>
@@ -249,48 +284,21 @@ export default function CreateRaffleModal({
                     />
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
 
-                    {collateralAddrDatas.map((data, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between w-full gap-5"
-                      >
-                        <input
-                          className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
-                          type="text"
-                          placeholder="_collateralAddress"
-                          value={data}
-                          onChange={(e) => {
-                            const newArr = [...collateralAddrDatas];
-                            newArr[idx] = e.target.value;
-                            setCollateralAddrDatas(newArr);
-                          }}
-                        />
-                        {idx > 0 && (
-                          <div
-                            className="text-2xl text-white cursor-pointer"
-                            onClick={() => {
-                              const newArr = [...collateralAddrDatas];
-                              newArr.splice(idx, 1);
-                              setCollateralAddrDatas(newArr);
-                            }}
-                          >
-                            {" x "}
-                          </div>
-                        )}
-                        {idx === collateralAddrDatas.length - 1 && (
-                          <div
-                            className="text-3xl text-white cursor-pointer"
-                            onClick={() =>
-                              setCollateralAddrDatas([
-                                ...collateralAddrDatas,
-                                "",
-                              ])
-                            }
-                          >
-                            {" + "}
-                          </div>
-                        )}
-                      </div>
+                    {collateralIDArray.map((data, index) => (
+                      <input
+                        key={index}
+                        className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
+                        type="string"
+                        placeholder="_collateralAddress"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setCollateralAddrDatas((prevState) => {
+                            const updatedArray = [...prevState];
+                            updatedArray[index] = String(value);
+                            return updatedArray;
+                          });
+                        }}
+                      />
                     ))}
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
 
@@ -328,7 +336,55 @@ export default function CreateRaffleModal({
                       }
                     />
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
-                    {inputFields}
+                    {prices.map((priceData, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between w-full gap-3 py-1"
+                      >
+                        <input
+                          className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
+                          type="number"
+                          placeholder="_prices.id"
+                          value={priceData.id}
+                          onChange={(e) =>
+                            handleInputChange(index, "id", e.target.value)
+                          }
+                        />
+                        <input
+                          className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
+                          type="number"
+                          placeholder="_prices.numEntries"
+                          value={priceData.numEntries}
+                          onChange={(e) =>
+                            handleInputChange(
+                              index,
+                              "numEntries",
+                              e.target.value
+                            )
+                          }
+                        />
+                        <input
+                          className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
+                          type="number"
+                          placeholder="_prices"
+                          onChange={(e) =>
+                            handleInputChange(index, "price", e.target.value)
+                          }
+                        />
+                        <div
+                          className="text-2xl text-white cursor-pointer"
+                          onClick={() => handleRemovePrice(index)}
+                        >
+                          {"x"}
+                        </div>
+                        <div
+                          className="text-3xl text-white cursor-pointer"
+                          onClick={handleAddPrice}
+                        >
+                          {"+"}
+                        </div>
+                      </div>
+                    ))}
                     {/* {maxEntriesPerUser.map((data, index) => (
                       <div
                         className="flex items-center justify-between w-full gap-3 py-1"
@@ -389,101 +445,11 @@ export default function CreateRaffleModal({
 
                     <input
                       className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
-                      type="number"
-                      placeholder="_commissionInBasicPoints"
-                      onChange={(e) =>
-                        setCommissionInBasicPoints(Number(e.target.value))
-                      }
+                      type="text"
+                      placeholder="_collectionWhitelist"
+                      onChange={(e) => setCollectionWhiteList([e.target.value])}
                     />
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
-
-                    {collectionWhitelist.map((data, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between w-full gap-5"
-                      >
-                        <input
-                          className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
-                          type="text"
-                          placeholder="_collectionWhitelist"
-                          value={data}
-                          onChange={(e) => {
-                            const newArr = [...collectionWhitelist];
-                            newArr[idx] = e.target.value;
-                            setCollectionWhiteList(newArr);
-                          }}
-                        />
-                        {idx > 0 && (
-                          <div
-                            className="text-2xl text-white cursor-pointer"
-                            onClick={() => {
-                              const newArr = [...collectionWhitelist];
-                              newArr.splice(idx, 1);
-                              setCollectionWhiteList(newArr);
-                            }}
-                          >
-                            {" x "}
-                          </div>
-                        )}
-                        {idx === collectionWhitelist.length - 1 && (
-                          <div
-                            className="text-3xl text-white cursor-pointer"
-                            onClick={() =>
-                              setCollectionWhiteList([
-                                ...collateralAddrDatas,
-                                "",
-                              ])
-                            }
-                          >
-                            {" + "}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                    <div className="w-full border-[2px] border-dashed border-gray-700" />
-                    {collectionFreeTickets.map((data, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between w-full gap-5"
-                      >
-                        <input
-                          className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
-                          type="text"
-                          placeholder="_collectionFreeTickets"
-                          value={data}
-                          onChange={(e) => {
-                            const newArr = [...collectionFreeTickets];
-                            newArr[idx] = e.target.value;
-                            setCollectionFreeTickets(newArr);
-                          }}
-                        />
-                        {idx > 0 && (
-                          <div
-                            className="text-2xl text-white cursor-pointer"
-                            onClick={() => {
-                              const newArr = [...collectionFreeTickets];
-                              newArr.splice(idx, 1);
-                              setCollectionFreeTickets(newArr);
-                            }}
-                          >
-                            {" x "}
-                          </div>
-                        )}
-                        {idx === collectionFreeTickets.length - 1 && (
-                          <div
-                            className="text-3xl text-white cursor-pointer"
-                            onClick={() =>
-                              setCollectionFreeTickets([
-                                ...collectionFreeTickets,
-                                "",
-                              ])
-                            }
-                          >
-                            {" + "}
-                          </div>
-                        )}
-                      </div>
-                    ))}
                   </div>
                   <div className="flex items-center justify-center w-full my-5">
                     <button
