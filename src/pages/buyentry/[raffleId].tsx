@@ -254,9 +254,11 @@ export default function Buyentry() {
           </div>
         </div>
       </div>
-      <div className="fixed top-0 bottom-0 left-0 right-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
-        <PulseLoader color="white" />
-      </div>
+      {loadingState && (
+        <div className="fixed top-0 bottom-0 left-0 right-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <PulseLoader color="white" />
+        </div>
+      )}
     </div>
   );
 }
