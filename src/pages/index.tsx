@@ -8,7 +8,7 @@ import { CONTRACT_ADDR } from "../config";
 
 const Home: NextPage = () => {
   return (
-    <main className="px-2 lg:px-10">
+    <main className="">
       <BlueChipsData />
       {/* <UpNextData />
       <WinBoxData />

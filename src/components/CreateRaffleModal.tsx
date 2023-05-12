@@ -11,6 +11,8 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import { GrAdd } from "react-icons/gr";
 import { max } from "moment";
 import { errorAlert, successAlert } from "./toastGroup";
+import { WindowWithEthereum } from "../types";
+import { useRouter } from "next/router";
 
 interface Props {
   isOpen: boolean;
@@ -18,10 +20,6 @@ interface Props {
   startLoading: () => void;
   endLoading: () => void;
   collateralIDArray: number[];
-}
-
-interface WindowWithEthereum extends Window {
-  ethereum?: any;
 }
 
 interface priceType {
@@ -38,6 +36,7 @@ export default function CreateRaffleModal({
   endLoading,
 }: Props) {
   const { account } = useWeb3React();
+  const router = useRouter();
 
   const [loadingState, setLoadingState] = useState<boolean>(false);
   const [endTimeStamp, setEndTimeStamp] = useState(0);
@@ -89,8 +88,7 @@ export default function CreateRaffleModal({
         tokenAmount,
         minimumFundsInWeis,
         prices,
-        collectionWhitelist,
-        { gasLimit: 1000000 }
+        collectionWhitelist
       )
         .then((tx: any) => {
           tx.wait()
@@ -98,6 +96,7 @@ export default function CreateRaffleModal({
               successAlert("Created Successful.");
               closeModal();
               endLoading();
+              router.push("/");
             })
             .catch(() => {
               errorAlert("Create Failed.");

@@ -14,15 +14,16 @@ export default function BlueChipsData() {
   const { createdRaffleData, raffleDataState } = useContext(RaffleDataContext);
 
   return (
-    <div className="mt-20 min-h-[20vh] px-4">
+    <div className="mt-24 min-h-[20vh] px-2">
       <h1 className="block mb-2 text-lg font-bold leading-none tracking-wider text-white uppercase lg:text-2xl category-title">
         blue chips
       </h1>
-      <div className="grid w-full grid-cols-1 gap-5 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-6 lg:grid-cols-4 md:grid-cols-3">
+      <div className="grid w-full grid-cols-1 gap-2 py-5 lg:gap-5 xl:grid-cols-4 2xl:grid-cols-6 lg:grid-cols-4 md:grid-cols-3">
         {createdRaffleData?.map((data, index) => (
           <Card
             key={index}
             raffleId={index}
+          name={data.name}
             amountRaised={data.amountRaised} // Convert to string before passing to Card
             cancellingDate={data.cancellingDate} // Convert to string before passing to Card
             collateralAddress={data.collateralAddress}

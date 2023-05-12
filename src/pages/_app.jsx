@@ -23,20 +23,20 @@ function StakingApp({ Component, pageProps }) {
   };
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ ease: "easeInOut", duration: 0.9, delay: 0.2 }}
-    >
-      <Web3ReactProvider getLibrary={getLibrary} chainId={getChainId}>
+    <Web3ReactProvider getLibrary={getLibrary} chainId={getChainId}>
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ ease: "easeInOut", duration: 0.9, delay: 0.2 }}
+      >
+        <Header />
         <RaffleDataProvider>
-          <Header />
           <Component {...pageProps} />
-          <ToastContainer style={{ fontSize: 14 }} />
-          {/* <Footer /> */}
         </RaffleDataProvider>
-      </Web3ReactProvider>
-    </motion.section>
+        <ToastContainer style={{ fontSize: 14 }} />
+        {/* <Footer /> */}
+      </motion.section>
+    </Web3ReactProvider>
   );
 }
 

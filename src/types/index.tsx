@@ -1,5 +1,6 @@
 export type CardProps = {
   raffleId: number;
+  name: string;
   amountRaised: Number;
   cancellingDate: Number;
   collateralAddress: String[];
@@ -18,3 +19,7 @@ export type RaffleDataContextValue = {
   createdRaffleData: CardProps[];
   raffleDataState: Boolean;
 };
+
+export interface WindowWithEthereum extends Window {
+  ethereum?: any;
+}
