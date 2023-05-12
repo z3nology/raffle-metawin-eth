@@ -532,7 +532,7 @@
           },
           { "internalType": "uint256", "name": "price", "type": "uint256" }
         ],
-        "internalType": "struct Raffletest.PriceStructure[]",
+        "internalType": "struct RaffletestNew.PriceStructure[]",
         "name": "_prices",
         "type": "tuple[]"
       },
@@ -612,7 +612,7 @@
           },
           { "internalType": "bool", "name": "claimed", "type": "bool" }
         ],
-        "internalType": "struct Raffletest.ClaimStruct",
+        "internalType": "struct RaffletestNew.ClaimStruct",
         "name": "",
         "type": "tuple"
       }
@@ -642,7 +642,7 @@
           },
           { "internalType": "address", "name": "player", "type": "address" }
         ],
-        "internalType": "struct Raffletest.EntriesBought[]",
+        "internalType": "struct RaffletestNew.EntriesBought[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -657,7 +657,7 @@
     "name": "getRaffleData",
     "outputs": [
       {
-        "internalType": "enum Raffletest.STATUS",
+        "internalType": "enum RaffletestNew.STATUS",
         "name": "status",
         "type": "uint8"
       },
@@ -776,8 +776,11 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "pricesList",
+    "inputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "prices",
     "outputs": [
       { "internalType": "uint256", "name": "id", "type": "uint256" },
       { "internalType": "uint256", "name": "numEntries", "type": "uint256" },
@@ -791,7 +794,7 @@
     "name": "raffles",
     "outputs": [
       {
-        "internalType": "enum Raffletest.STATUS",
+        "internalType": "enum RaffletestNew.STATUS",
         "name": "status",
         "type": "uint8"
       },
@@ -958,7 +961,7 @@
           },
           { "internalType": "uint256", "name": "price", "type": "uint256" }
         ],
-        "internalType": "struct Raffletest.PriceStructure[]",
+        "internalType": "struct RaffletestNew.PriceStructure[]",
         "name": "_prices",
         "type": "tuple[]"
       },
@@ -975,7 +978,7 @@
   },
   {
     "inputs": [],
-    "name": "withdrawFundsFromContract",
+    "name": "withdrawFundsFees",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

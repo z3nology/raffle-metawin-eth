@@ -3,8 +3,7 @@ import NftCard from "../components/NftCard";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CreateRaffleModal from "../components/CreateRaffleModal";
-import { CircleLoader, PacmanLoader, PulseLoader } from "react-spinners";
-import Loader from "react-spinners/BounceLoader";
+import { PulseLoader } from "react-spinners";
 import { errorAlert } from "../components/toastGroup";
 
 type NftDataType = {
@@ -75,8 +74,6 @@ export default function CreateRaffle() {
         };
       });
 
-      console.log(tokens);
-
       setNftData(tokens);
       setLoadingState(false);
       //   return metadataResults;
@@ -111,7 +108,7 @@ export default function CreateRaffle() {
   };
 
   return (
-    <div className="w-full px-5 mt-20">
+    <div className="w-full px-2 mt-24 mb-10 md:px-10">
       <h1 className="text-2xl font-normal text-white uppercase">
         my nft lists
       </h1>
@@ -130,9 +127,10 @@ export default function CreateRaffle() {
                 </h1>
               </div>
             )}
-            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 2xl:grid-cols-8 lg:grid-cols-4 md:grid-cols-3">
+            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3">
               {nftData?.map((data, index) => (
                 <NftCard
+                  name={data.title}
                   key={index}
                   tokenId={data.mintId}
                   imgUrl={data.image}

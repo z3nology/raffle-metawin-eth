@@ -7,7 +7,7 @@ export const injected = new InjectedConnector({
 const switchNetworkRequest = () =>
   (window as any).ethereum.request({
     method: "wallet_switchEthereumChain",
-    params: [{ chainId: "0xAA36A7" }],
+    params: [{ chainId: "0xaa36a7" }],
   });
 
 const addNetworkRequest = () =>
@@ -15,9 +15,9 @@ const addNetworkRequest = () =>
     method: "wallet_addEthereumChain",
     params: [
       {
-        chainId: "0xAA36A7",
+        chainId: "0xaa36a7",
         chainName: "Sepolia",
-        rpcUrls: ["https://eth-sepolia.public.blastapi.io"],
+        rpcUrls: ["https://endpoints.omniatech.io/v1/eth/sepolia/public"],
         blockExplorerUrls: ["https://sepolia.etherscan.io"],
         nativeCurrency: {
           name: "ETH",

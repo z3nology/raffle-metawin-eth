@@ -48,6 +48,7 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
           ).toFixed(8)
         ),
         cancellingDate: Number(data.cancellingDate),
+        name: data.name,
         collateralAddress: data.collateralAddress,
         collateralId: data.collateralId.map((id: number) => Number(id)),
         collectionWhitelist: data.collectionWhitelist,
@@ -66,7 +67,9 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
-    if (account) getRaffleData();
+    if (account) {
+      getRaffleData();
+    }
     // eslint-disable-next-line
   }, [account]);
 
