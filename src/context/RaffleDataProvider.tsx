@@ -9,6 +9,7 @@ import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
 export const RaffleDataContext = createContext<RaffleDataContextValue>({
   createdRaffleData: [],
   raffleDataState: false,
+  getRaffleData: () => {},
 });
 
 const GetActivityDataProvider: React.FC = ({ children }) => {
@@ -53,6 +54,7 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
         collateralId: data.collateralId.map((id: number) => Number(id)),
         collectionWhitelist: data.collectionWhitelist,
         creator: data.creator,
+        winner: data.winner,
         endTime: Number(data.endTime),
         entriesLength: Number(data.entriesLength),
         maxEntries: Number(data.maxEntries),
@@ -78,6 +80,7 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
       value={{
         createdRaffleData,
         raffleDataState,
+        getRaffleData,
       }}
     >
       {children}

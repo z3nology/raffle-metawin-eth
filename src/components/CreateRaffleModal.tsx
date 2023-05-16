@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-
+import { useContext } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
@@ -13,6 +13,7 @@ import { max } from "moment";
 import { errorAlert, successAlert } from "./toastGroup";
 import { WindowWithEthereum } from "../types";
 import { useRouter } from "next/router";
+import { RaffleDataContext } from "../context/RaffleDataProvider";
 
 interface Props {
   isOpen: boolean;
@@ -49,13 +50,15 @@ export default function CreateRaffleModal({
 
   const [minimumFundsInWeis, setMinimumFundsInWeis] = useState<number>(0);
   const [prices, setPrices] = useState<priceType[]>([
-    { id: 0, numEntries: 0, price: 0 },
+    { id: 1, numEntries: 1, price: 0 },
   ]);
   const [commissionInBasicPoints, setCommissionInBasicPoints] =
     useState<number>(0);
   const [collectionWhitelist, setCollectionWhiteList] = useState<string[]>([
     "",
   ]);
+
+  const { getRaffleData } = useContext(RaffleDataContext);
 
   // Get raffle contract
   const provider =
@@ -77,6 +80,11 @@ export default function CreateRaffleModal({
     const currentTimestamp = Math.floor(Date.now() / 1000);
     if (endTimeStamp < currentTimestamp) {
       errorAlert("EndTime must be!");
+    } else if (
+      prices.filter((data) => data.numEntries === 0).length !== 0 ||
+      prices.filter((data) => data.price === 0).length !== 0
+    ) {
+      errorAlert("Please input the correct price data!");
     } else {
       startLoading();
       await NFTCONTRACT.createRaffle(
@@ -88,13 +96,14 @@ export default function CreateRaffleModal({
         tokenAmount,
         minimumFundsInWeis,
         prices,
-        collectionWhitelist
+        collectionWhitelist,
       )
         .then((tx: any) => {
           tx.wait()
             .then(() => {
               successAlert("Created Successful.");
               closeModal();
+              getRaffleData();
               endLoading();
               router.push("/");
             })
@@ -344,7 +353,6 @@ export default function CreateRaffleModal({
                           className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
                           type="number"
                           placeholder="_prices.id"
-                          value={priceData.id}
                           onChange={(e) =>
                             handleInputChange(index, "id", e.target.value)
                           }
@@ -353,7 +361,6 @@ export default function CreateRaffleModal({
                           className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
                           type="number"
                           placeholder="_prices.numEntries"
-                          value={priceData.numEntries}
                           onChange={(e) =>
                             handleInputChange(
                               index,

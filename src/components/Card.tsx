@@ -18,6 +18,7 @@ export default function Card({
   collateralId,
   collectionWhitelist,
   creator,
+  winner,
   endTime,
   entriesLength,
   maxEntries,
@@ -46,8 +47,13 @@ export default function Card({
   return (
     <>
       <div className="rounded-xl relative bg-white hover:scale-[1.03] duration-300 transition-all z-10">
-        <Link href={`/buyentry/${raffleId}`} passHref>
-          <div className="relative z-0 w-full overflow-hidden cursor-pointer group">
+        <Link href={`/buy`} passHref>
+          <div
+            className="relative z-0 w-full overflow-hidden cursor-pointer group"
+            onClick={() =>
+              localStorage.setItem("raffleId", raffleId.toString())
+            }
+          >
             <div className="w-full">
               <Slider
                 {...settings}
@@ -70,7 +76,11 @@ export default function Card({
             </div>
 
             <div className="absolute right-0 px-2 mx-2 text-sm font-bold text-black uppercase bg-yellow-300 rounded-full bottom-1">
-              <Countdown endDateTime={endTime} />
+              <Countdown
+                endDateTime={endTime}
+                raffleId={raffleId}
+                winner={winner}
+              />
             </div>
             <div className="absolute bottom-0 z-20 hidden w-full py-1 text-center text-white transition-all delay-100 translate-y-10 rounded-b-lg lg:block bg-slate-800 group-hover:translate-y-0">
               <span className="text-xs font-bold tracking-wider uppercase lg:text-sm">
