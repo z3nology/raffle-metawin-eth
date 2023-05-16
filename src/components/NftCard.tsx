@@ -23,7 +23,7 @@ export default function NftCard(props: {
           (data) => data === Number(props.tokenId)
         ).length !== 0 && (
           <div className="absolute top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center bg-black rounded-lg bg-opacity-60 backdrop-blur-md">
-            <BsFillCheckCircleFill color="white" size={30} />
+            <BsFillCheckCircleFill color="white" size={50} />
           </div>
         )}
         <h1 className="font-bold text-gray-600 text-center z-[1] relative py-2 text-md">

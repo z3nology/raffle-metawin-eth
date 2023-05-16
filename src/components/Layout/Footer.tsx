@@ -1,4 +1,4 @@
-  import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import * as Gricon from "react-icons/gr";
 
@@ -30,7 +30,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="w-full text-center border-t-[1px] border-gray-100 border-opacity-40 py-10">
+    <footer className="w-full text-center border-t-[1px] border-gray-100 border-opacity-40 py-10 z-50">
       <div className="text-white">
         Join our{" "}
         <a
