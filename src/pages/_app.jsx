@@ -12,7 +12,14 @@ import RaffleDataProvider from "../context/RaffleDataProvider";
 
 function StakingApp({ Component, pageProps }) {
   const getLibrary = (provider) => {
-    const library = new ethers.providers.Web3Provider(provider);
+    let library;
+    const cachedAccount = localStorage.getItem("walletAccount");
+    if (cachedAccount) {
+      library = new ethers.providers.Web3Provider(provider);
+      library.getSigner(cachedAccount);
+    } else {
+      library = new ethers.providers.Web3Provider(provider);
+    }
     library.pollingInterval = 8000; // frequency provider is polling
     return library;
   };

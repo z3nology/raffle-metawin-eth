@@ -53,7 +53,7 @@ export default function Header() {
     };
     connectWalletOnPageLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 

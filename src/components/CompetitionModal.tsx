@@ -5,7 +5,7 @@ import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { Fragment, useState } from "react";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
-import { CONTRACT_ADDR } from "../config";
+import { RAFFLECONTRACT_ADDR } from "../config";
 import { errorAlert, successAlert } from "./toastGroup";
 import { PulseLoader } from "react-spinners";
 
@@ -49,8 +49,8 @@ export default function CompetitionModal({
       : null;
   const Signer = provider?.getSigner();
 
-  const NFTCONTRACT = new ethers.Contract(
-    CONTRACT_ADDR,
+  const RAFFLECONTRACT = new ethers.Contract(
+    RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
     Signer
   );
@@ -58,7 +58,7 @@ export default function CompetitionModal({
   const buyEntry = async () => {
     setRaffleDataState(true);
 
-    await NFTCONTRACT.buyEntry(
+    await RAFFLECONTRACT.buyEntry(
       raffleId,
       1,
       collateralAddress[0],

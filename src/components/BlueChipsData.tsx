@@ -1,16 +1,9 @@
 import { useContext } from "react";
-import { ethers } from "ethers";
 import Card from "./Card";
-import { CONTRACT_ADDR } from "../config";
-import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
-import { useWeb3React } from "@web3-react/core";
-import { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import { RaffleDataContext } from "../context/RaffleDataProvider";
 
 export default function BlueChipsData() {
-  const { account } = useWeb3React();
-
   const { createdRaffleData, raffleDataState } = useContext(RaffleDataContext);
 
   return (
@@ -18,14 +11,7 @@ export default function BlueChipsData() {
       <h1 className="block mb-2 text-lg font-bold leading-none tracking-wider text-white uppercase lg:text-2xl category-title">
         blue chips
       </h1>
-      {!account && (
-        <div className="flex items-center justify-center w-full mt-10">
-          <h1 className="text-xl font-bold text-white">
-            Please connect wallet
-          </h1>
-        </div>
-      )}
-      <div className="grid w-full grid-cols-1 gap-2 py-5 lg:gap-5 xl:grid-cols-4 2xl:grid-cols-6 lg:grid-cols-4 md:grid-cols-3">
+      <div className="grid w-full grid-cols-1 gap-2 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-3">
         {createdRaffleData?.map((data, index) => (
           <Card
             key={index}

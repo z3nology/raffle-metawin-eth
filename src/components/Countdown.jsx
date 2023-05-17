@@ -2,39 +2,40 @@ import { useEffect, useState, useContext } from "react";
 import { default as ReactCountdown } from "react-countdown";
 import { ethers } from "ethers";
 import { RaffleDataContext } from "../context/RaffleDataProvider";
-import { CONTRACT_ADDR } from "../config";
+import { RAFFLECONTRACT_ADDR } from "../config";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
 import { errorAlert, successAlert } from "./toastGroup";
+import { useWeb3React } from "@web3-react/core";
 
 const Countdown = ({ endDateTime, raffleId, winner }) => {
+  const { account } = useWeb3React();
   const [endTimeState, setEndTimeState] = useState(false);
-  const { createdRaffleData, getRaffleData } = useContext(RaffleDataContext);
 
   const Provider = new ethers.providers.Web3Provider(window.ethereum);
   const Signer = Provider.getSigner();
 
-  const NFTMintContract = new ethers.Contract(
-    CONTRACT_ADDR,
+  const RAFFLECONTRACT = new ethers.Contract(
+    RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
     Signer
   );
 
   const setWinnerFunc = async () => {
     setEndTimeState(true);
-    if (winner === "0x0000000000000000000000000000000000000000")
-      await NFTCONTRACT.setWinnerRaffle(raffleId)
-        .then((tx) => {
-          tx.wait()
-            .then(() => {
-              successAlert("Winner Choosed");
-            })
-            .catch(() => {
-              errorAlert("Failed!");
-            });
-        })
-        .catch(() => {
-          errorAlert("Failed!");
-        });
+    // if (winner === "0x0000000000000000000000000000000000000000" && account)
+    //   await RAFFLECONTRACT.setWinnerRaffle(raffleId)
+    //     .then((tx) => {
+    //       tx.wait()
+    //         .then(() => {
+    //           successAlert("Winner Choosed");
+    //         })
+    //         .catch(() => {
+    //           errorAlert("Failed!");
+    //         });
+    //     })
+    //     .catch(() => {
+    //       errorAlert("Failed!");
+    //     });
   };
 
   const renderer = ({ days, hours, minutes, seconds }) => {
@@ -47,7 +48,7 @@ const Countdown = ({ endDateTime, raffleId, winner }) => {
           </div>
         ) : (
           <div className="text-sm font-extrabold text-red-500">
-            <span>ENDED</span>
+            <span>ended raffles</span>
           </div>
         )}
       </>

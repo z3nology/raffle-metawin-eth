@@ -19,6 +19,7 @@ export type CardProps = {
 export type RaffleDataContextValue = {
   createdRaffleData: CardProps[];
   raffleDataState: Boolean;
+  collectionName: String;
   getRaffleData: () => void;
 };
 
@@ -30,4 +31,9 @@ export type PriceDataType = {
   id: number;
   numEntries: number;
   price: number;
+};
+
+export type EntriesHistory = {
+  address: string;
+  entriesCounts: number;
 };

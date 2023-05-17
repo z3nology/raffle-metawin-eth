@@ -5,7 +5,7 @@ import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { Fragment, useEffect, useState } from "react";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
-import { CONTRACT_ADDR } from "../config";
+import { RAFFLECONTRACT_ADDR } from "../config";
 
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { GrAdd } from "react-icons/gr";
@@ -69,8 +69,8 @@ export default function CreateRaffleModal({
       : null;
   const Signer = provider?.getSigner();
 
-  const NFTCONTRACT = new ethers.Contract(
-    CONTRACT_ADDR,
+  const RAFFLECONTRACT = new ethers.Contract(
+    RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
     Signer
   );
@@ -87,7 +87,7 @@ export default function CreateRaffleModal({
       errorAlert("Please input the correct price data!");
     } else {
       startLoading();
-      await NFTCONTRACT.createRaffle(
+      await RAFFLECONTRACT.createRaffle(
         endTimeStamp,
         desiredFundsInWeis,
         maxEntriesPerUser,
@@ -96,7 +96,7 @@ export default function CreateRaffleModal({
         tokenAmount,
         minimumFundsInWeis,
         prices,
-        collectionWhitelist,
+        collectionWhitelist
       )
         .then((tx: any) => {
           tx.wait()
@@ -283,8 +283,6 @@ export default function CreateRaffleModal({
                         let value = Number(e.target.value);
                         if (value === 0) {
                           setMaxEntriesPerUser(1);
-                        } else if (value > 5) {
-                          setMaxEntriesPerUser(5);
                         } else {
                           setMaxEntriesPerUser(value);
                         }

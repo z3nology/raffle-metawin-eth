@@ -5,7 +5,7 @@ import { RaffleDataContext } from "../context/RaffleDataProvider";
 import { useWeb3React } from "@web3-react/core";
 import Slider from "react-slick";
 import { ethers } from "ethers";
-import { CONTRACT_ADDR } from "../config";
+import { RAFFLECONTRACT_ADDR } from "../config";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
 import { errorAlert, successAlert } from "../components/toastGroup";
 import { PulseLoader } from "react-spinners";
@@ -48,8 +48,8 @@ export default function Buy() {
       : null;
   const Signer = provider?.getSigner();
 
-  const NFTCONTRACT = new ethers.Contract(
-    CONTRACT_ADDR,
+  const RAFFLECONTRACT = new ethers.Contract(
+    RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
     Signer
   );
@@ -67,7 +67,7 @@ export default function Buy() {
     } else {
       if (Number(filterDataByID[0].endTime) * 1000 > currentTimestamp) {
         setLoadingState(true);
-        await NFTCONTRACT.buyEntry(
+        await RAFFLECONTRACT.buyEntry(
           Number(raffleId),
           id,
           "0x0000000000000000000000000000000000000000",
@@ -119,7 +119,7 @@ export default function Buy() {
     const priceData: any[] = [];
     if (createdRaffleData && filterDataByID[0]?.maxEntries)
       for (let i = 0; i < filterDataByID[0].maxEntries; i++) {
-        await NFTCONTRACT.prices(raffleId, i).then((data: any) => {
+        await RAFFLECONTRACT.prices(raffleId, i).then((data: any) => {
           if (Number(data.numEntries) === 0) return;
           priceData.push({
             id: i + 1,
@@ -145,7 +145,7 @@ export default function Buy() {
     setLoadingState(true);
 
     const raffleId = Number(localStorage.getItem("raffleId"));
-    await NFTCONTRACT.AcceptRaffle(raffleId, { gasLimit: 3000000 })
+    await RAFFLECONTRACT.AcceptRaffle(raffleId, { gasLimit: 3000000 })
       .then((tx: any) => {
         tx.wait()
           .then(() => {
@@ -169,7 +169,7 @@ export default function Buy() {
   const getEntriesByRaffleId = async () => {
     const raffleId = Number(localStorage.getItem("raffleId"));
     let count = 0;
-    const data = await NFTCONTRACT.getEntriesBought(raffleId);
+    const data = await RAFFLECONTRACT.getEntriesBought(raffleId);
     console.log("data", data);
     for (let i = data.length - 1; i >= 0; i--) {
       if (data[i].player === account) {
