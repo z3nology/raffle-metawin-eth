@@ -127,7 +127,7 @@ export default function CreateRaffle() {
                 </h1>
               </div>
             )}
-            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3">
+            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-3">
               {nftData?.map((data, index) => (
                 <NftCard
                   name={data.title}
