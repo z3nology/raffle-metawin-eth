@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { RaffleDataContext } from "../../context/RaffleDataProvider";
 import { useWeb3React } from "@web3-react/core";
@@ -17,9 +18,9 @@ import { route } from "next/dist/server/router";
 export default function BuyEntry() {
   const { account } = useWeb3React();
   const router = useRouter();
-  console.log("router", router.query.raffleId);
+  const [currentTime] = useState(Math.floor(new Date().getTime() / 1000));
   const { createdRaffleData } = useContext(RaffleDataContext);
-  const [priceArray, setPrice] = useState<PriceDataType[]>([]);
+  const [priceArray, setPriceArray] = useState<PriceDataType[]>([]);
   const [entriesHistory, setEntriesHistory] = useState<EntriesHistory[]>([]);
   const [currentTicketCount, setCurrentTicketCount] = useState<number>(0);
   const [collateralIDArray, setCollateralIDArray] = useState<String[]>([]);
@@ -29,6 +30,8 @@ export default function BuyEntry() {
   const [activityLoading, setActivityLoading] = useState(false);
 
   const { collectionName } = useContext(RaffleDataContext);
+
+  console.log("currentTime", currentTime);
 
   const settings = {
     dots: false,
@@ -55,10 +58,14 @@ export default function BuyEntry() {
       : null;
   const Signer = provider?.getSigner();
 
+  // Get raffle contract
+  const provider2 = new ethers.providers.JsonRpcProvider(
+    "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
+  );
   const RAFFLECONTRACT = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
-    Signer
+    provider2
   );
 
   const handleBuyFunc = async (id: number, price: number) => {
@@ -110,77 +117,81 @@ export default function BuyEntry() {
     }
   };
 
-  useEffect(() => {
-    setLoadingState(true);
-    if (createdRaffleData) {
-      if (localStorage.getItem("raffleId") !== undefined) {
-        const dataById = createdRaffleData.filter(
-          (data) => data.raffleId === Number(localStorage.getItem("raffleId"))
-        );
-        setFilterDataByID(dataById);
-        setCollateralIDArray(dataById[0]?.collateralId);
-      }
-      setLoadingState(false);
-    }
-    // getPriceData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createdRaffleData]);
-
   const getPriceData = async () => {
     setPriceArrayLoading(true);
-    const raffleId = Number(localStorage.getItem("raffleId"));
-    const priceData: any[] = [];
-    if (createdRaffleData && filterDataByID[0]?.maxEntries)
-      for (let i = 0; i < filterDataByID[0].maxEntries; i++) {
-        await RAFFLECONTRACT.prices(raffleId, i).then((data: any) => {
-          if (Number(data.numEntries) === 0) return;
-          priceData.push({
-            id: i + 1,
-            numEntries: Number(data.numEntries),
-            price: Number(
-              parseFloat(
-                ethers.utils.formatEther(data.price.toString())
-              ).toFixed(6)
-            ),
-          });
-        });
-      }
-    setPrice(priceData);
+
+    const priceData = [];
+
+    for (let i = 0; i < 5; i++) {
+      const data = await RAFFLECONTRACT.prices(router.query.raffleId, i);
+
+      if (Number(data.numEntries) === 0) continue;
+
+      priceData.push({
+        id: i + 1,
+        numEntries: Number(data.numEntries),
+        price: Number(
+          parseFloat(ethers.utils.formatEther(data.price.toString())).toFixed(6)
+        ),
+      });
+    }
+
+    setPriceArray(priceData);
     setPriceArrayLoading(false);
   };
-
-  useEffect(() => {
-    if (filterDataByID) getPriceData();
-    // eslint-disable-next-line
-  }, [filterDataByID]);
 
   const getEntriesByRaffleId = async () => {
     setActivityLoading(true);
     let count = 0;
-    const history: EntriesHistory[] = [];
+    const history = [];
     const data = await RAFFLECONTRACT.getEntriesBought(router.query.raffleId);
+
     for (let i = data.length - 1; i >= 0; i--) {
+      const currentEntries =
+        Number(data[i].currentEntriesLength) -
+        (i === 0 ? 0 : Number(data[i - 1].currentEntriesLength));
+
       history.push({
         address: data[i].player,
-        entriesCounts:
-          Number(data[i].currentEntriesLength) -
-          (i == 0 ? 0 : Number(data[i - 1].currentEntriesLength)),
+        entriesCounts: currentEntries,
       });
+
       if (data[i].player === account) {
-        count +=
-          Number(data[i].currentEntriesLength) -
-          (i == 0 ? 0 : Number(data[i - 1].currentEntriesLength));
+        count += currentEntries;
       }
     }
+
     setCurrentTicketCount(count);
     setEntriesHistory(history);
     setActivityLoading(false);
   };
 
   useEffect(() => {
-    if (account) getEntriesByRaffleId();
-    // eslint-disable-next-line
+    if (account) {
+      getEntriesByRaffleId();
+    }
   }, [account, router]);
+
+  useEffect(() => {
+    setLoadingState(true);
+
+    if (!createdRaffleData) return;
+
+    const dataById = createdRaffleData.filter(
+      (data) => data.raffleId === Number(router.query.raffleId)
+    );
+
+    console.log("databyid", dataById);
+
+    setFilterDataByID(dataById);
+    setCollateralIDArray(dataById[0]?.collateralId);
+
+    setLoadingState(false);
+  }, [createdRaffleData, router.query.raffleId]);
+
+  useEffect(() => {
+    getPriceData();
+  }, [router.query.raffleId]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full mt-24 lg:mt-40 xl:px-[200px] 2xl:px-[300px] px-[10px] md:px-[100px]">
@@ -235,28 +246,37 @@ export default function BuyEntry() {
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex items-center justify-start w-full gap-3">
+            {collateralIDArray?.map((data, index) => (
+              <div
+                className="text-3xl font-bold leading-6 text-left text-white uppercase"
+                key={index}
+              >
+                {collectionName}{" "}
+                <span className="text-3xl text-blue-500">#{data}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 text-white text-md border-t-[1px] border-gray-800 pt-2 text-left w-full">
+            CloseTime : {` `}
+            {filterDataByID[0]
+              ? new Date(
+                  Number(filterDataByID[0]?.endTime) * 1000
+                ).toLocaleString()
+              : "..."}
+          </div>
+
           <div
             className="xl:max-w-[900px] rounded-2xl p-6 text-left shadow-xl transition-all
                 min-h-[70vh] z-20 bg-[#04111d] w-full"
           >
-            <div className="flex items-center justify-start w-full gap-3">
-              {collateralIDArray?.map((data, index) => (
-                <h1
-                  className="text-3xl font-bold leading-6 text-left text-white uppercase"
-                  key={index}
-                >
-                  {collectionName}{" "}
-                  <span className="text-3xl text-blue-500">#{data}</span>
-                </h1>
-              ))}
-            </div>
-            <h1 className="mt-3 text-white text-md border-t-[1px] border-gray-800 pt-2">
-              CloseTime : {` `}
-              {new Date(
-                Number(filterDataByID[0]?.endTime) * 1000
-              ).toLocaleString()}
-            </h1>
+            {filterDataByID[0]?.endTime < Number(currentTime) && (
+              <h1 className="mb-3 text-white text-3xl border-b-[1px] border-gray-800 uppercase text-center">
+                Competition Ended!
+              </h1>
+            )}
+
             <p className="my-5 text-center text-white text-md">
               You used{" "}
               <span className="text-blue-500">
@@ -323,6 +343,16 @@ export default function BuyEntry() {
                 </div>
               ))}
             </div>
+            {filterDataByID[0]?.endTime < Number(currentTime) && (
+              <Link href="/" passHref>
+                <div className="flex items-center justify-center w-full">
+                  <div className="px-5 py-2 mt-5 mb-3 text-lg font-bold text-center text-white uppercase bg-blue-500 rounded-full cursor-pointer">
+                    Enter another
+                  </div>
+                </div>
+              </Link>
+            )}
+
             <div className="w-full">
               <p className="mt-4 text-sm text-center text-gray-500">
                 All entries require gas.

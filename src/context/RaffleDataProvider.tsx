@@ -34,30 +34,31 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
       : null;
   const Signer = provider?.getSigner();
 
+  const provider2 = new ethers.providers.JsonRpcProvider(
+    "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
+  );
+
   const NFTCONTRACT = new ethers.Contract(
     NFTCONTRACT_ADDR,
     NFTCONTRACT_ABI,
-    Signer
+    provider2
   );
 
-  const provider2 = new ethers.providers.JsonRpcProvider(
-    "https://mainnet.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
-  );
-  const RAFFLECONTRACT = new ethers.Contract(
+  const RAFFLECONTRACT2 = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
-    Signer
+    provider2
   );
-  console.log("contract => ", RAFFLECONTRACT);
+
+  console.log("contract => ", RAFFLECONTRACT2);
 
   const getRaffleData = async () => {
     setRaffleDataState(true);
-    const raffleDataLength = await RAFFLECONTRACT.getRafflesLength();
-    console.log("raffleDataLength", raffleDataLength);
+    const raffleDataLength = await RAFFLECONTRACT2.getRafflesLength();
     const raffleData: CardProps[] = [];
     if (raffleDataLength)
       for (let i = 0; i < Number(raffleDataLength); i++) {
-        const data = await RAFFLECONTRACT.getRaffleData(i);
+        const data = await RAFFLECONTRACT2.getRaffleData(i);
         raffleData.push({
           raffleId: i,
           amountRaised: Number(
@@ -91,10 +92,10 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
-    if (account) getRaffleData();
+    getRaffleData();
     getCollectionName();
     // eslint-disable-next-line
-  }, [account]);
+  }, []);
 
   return (
     <RaffleDataContext.Provider
