@@ -48,10 +48,14 @@ export default function Buy() {
       : null;
   const Signer = provider?.getSigner();
 
+  const provider2 = new ethers.providers.JsonRpcProvider(
+    "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
+  );
+
   const RAFFLECONTRACT = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
-    Signer
+    provider2
   );
 
   const handleBuyFunc = async (id: number, price: number) => {

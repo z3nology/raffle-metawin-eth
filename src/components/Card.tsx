@@ -63,18 +63,14 @@ export default function Card({
   };
 
   // Get raffle contract
-  const provider =
-    typeof window !== "undefined" && (window as WindowWithEthereum).ethereum
-      ? new ethers.providers.Web3Provider(
-          (window as WindowWithEthereum).ethereum
-        )
-      : null;
-  const Signer = provider?.getSigner();
+    const provider2 = new ethers.providers.JsonRpcProvider(
+      "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
+    );
 
   const RAFFLECONTRACT = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
-    Signer
+    provider2
   );
 
   const handleClickBuyEntry = async () => {
