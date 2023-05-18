@@ -124,9 +124,7 @@ export default function BuyEntry() {
 
     for (let i = 0; i < 5; i++) {
       const data = await RAFFLECONTRACT.prices(router.query.raffleId, i);
-
-      if (Number(data.numEntries) === 0) continue;
-
+      if (Number(data?.numEntries) === 0 || !data) return;
       priceData.push({
         id: i + 1,
         numEntries: Number(data.numEntries),
@@ -136,7 +134,7 @@ export default function BuyEntry() {
       });
     }
 
-    setPriceArray(priceData);
+    // setPriceArray(priceData);
     setPriceArrayLoading(false);
   };
 
@@ -170,6 +168,7 @@ export default function BuyEntry() {
     if (account) {
       getEntriesByRaffleId();
     }
+    // eslint-disable-next-line
   }, [account, router]);
 
   useEffect(() => {
@@ -187,10 +186,12 @@ export default function BuyEntry() {
     setCollateralIDArray(dataById[0]?.collateralId);
 
     setLoadingState(false);
+    // eslint-disable-next-line
   }, [createdRaffleData, router.query.raffleId]);
 
   useEffect(() => {
     getPriceData();
+    // eslint-disable-next-line
   }, [router.query.raffleId]);
 
   return (

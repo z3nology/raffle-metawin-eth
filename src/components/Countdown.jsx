@@ -11,8 +11,12 @@ const Countdown = ({ endDateTime, raffleId, winner }) => {
   const { account } = useWeb3React();
   const [endTimeState, setEndTimeState] = useState(false);
 
-  const Provider = new ethers.providers.Web3Provider(window.ethereum);
-  const Signer = Provider.getSigner();
+  let Signer;
+
+  if (window.ethereum) {
+    const Provider = new ethers.providers.Web3Provider(window.ethereum);
+    Signer = Provider.getSigner();
+  }
 
   const RAFFLECONTRACT = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
