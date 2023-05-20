@@ -5,6 +5,7 @@ export default function NftCard(props: {
   name: string;
   tokenId: string;
   imgUrl: string;
+  collectionAddr: string;
   collateralIDArray: number[];
   onAddNFTsForRaffle: () => void;
 }) {
@@ -22,7 +23,7 @@ export default function NftCard(props: {
         {props.collateralIDArray.filter(
           (data) => data === Number(props.tokenId)
         ).length !== 0 && (
-          <div className="absolute top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center bg-black rounded-lg bg-opacity-60 backdrop-blur-md">
+          <div className="absolute top-0 bottom-0 left-0 right-0 z-40 flex items-center justify-center bg-black rounded-lg bg-opacity-60 backdrop-blur-md">
             <BsFillCheckCircleFill color="white" size={50} />
           </div>
         )}

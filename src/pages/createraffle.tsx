@@ -21,6 +21,7 @@ export default function CreateRaffle() {
   const [nftData, setNftData] = useState<NftDataType[]>([]);
   const [loadingState, setLoadingState] = useState<Boolean>(false);
   const [collateralIDArray, setCollateralIDArray] = useState<number[]>([]);
+  const [collectionAddrArray, setCollectionAddrArray] = useState<string[]>([]);
 
   const getNfts = async (address: string) => {
     setLoadingState(true);
@@ -44,7 +45,6 @@ export default function CreateRaffle() {
       const [responseGoerli] = await Promise.all([
         axios.request(optionsGoerli),
       ]);
-      console.log("responseGoerli.data.result=>", responseGoerli.data.result);
       const goerliNfts = responseGoerli.data.result.map((nft: any) => ({
         ...nft,
         type: "goerli",
@@ -74,6 +74,8 @@ export default function CreateRaffle() {
         };
       });
 
+      console.log("tokens", tokens);
+
       setNftData(tokens);
       setLoadingState(false);
       //   return metadataResults;
@@ -99,7 +101,9 @@ export default function CreateRaffle() {
     }
   };
 
-  const handleAddNFTsForRaffle = (nftId: number) => {
+  const handleAddNFTsForRaffle = (nftId: number, collectionAddr: string) => {
+    setCollectionAddrArray([...collectionAddrArray, collectionAddr]);
+
     if (collateralIDArray.includes(nftId)) {
       setCollateralIDArray(collateralIDArray.filter((id) => id !== nftId));
     } else {
@@ -119,7 +123,7 @@ export default function CreateRaffle() {
       )}
       {!loadingState && (
         <>
-          <div className="w-full min-h-[30vh] flex items-center justify-center flex-col">
+          <div className="w-full min-h-[30vh] flex items-center justify-center flex-col max-h-screen overflow-y-auto">
             {nftData.length === 0 && (
               <div className="flex items-center justify-center w-full">
                 <h1 className="text-2xl font-normal text-center text-white uppercase">
@@ -127,16 +131,20 @@ export default function CreateRaffle() {
                 </h1>
               </div>
             )}
-            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-3">
+            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 2xl:grid-cols-9 lg:grid-cols-6 md:grid-cols-4">
               {nftData?.map((data, index) => (
                 <NftCard
                   name={data.title}
                   key={index}
                   tokenId={data.mintId}
                   imgUrl={data.image}
+                  collectionAddr={data.collectionId}
                   collateralIDArray={collateralIDArray}
                   onAddNFTsForRaffle={() =>
-                    handleAddNFTsForRaffle(Number(data.mintId))
+                    handleAddNFTsForRaffle(
+                      Number(data.mintId),
+                      data.collectionId
+                    )
                   }
                 />
               ))}
@@ -157,6 +165,7 @@ export default function CreateRaffle() {
       <CreateRaffleModal
         isOpen={isModalOpen}
         collateralIDArray={collateralIDArray}
+        collectionAddrArray={collectionAddrArray}
         closeModal={() => setIsModalOpen(false)}
         startLoading={() => setLoadingState(true)}
         endLoading={() => setLoadingState(false)}

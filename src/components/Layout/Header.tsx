@@ -23,7 +23,6 @@ export default function Header() {
       switchNetwork();
     }
     try {
-      console.log("clicked");
       await activate(injected);
       localStorage.setItem("isWalletConnected", "true");
     } catch (ex) {
@@ -63,7 +62,7 @@ export default function Header() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 z-30 w-full py-2 transition-all duration-500 border-b nav-main border-cyan-500 lg:px-7 before:w-full before:h-full before:absolute before:-z-10 before:left-0 before:backdrop-blur-md before:transition-all before:duration-500 lg:before:hidden backdrop-blur-md bg-slate-900">
+      <nav className="fixed top-0 left-0 z-50 w-full py-2 transition-all duration-500 border-b nav-main border-cyan-500 lg:px-7 before:w-full before:h-full before:absolute before:-z-10 before:left-0 before:backdrop-blur-md before:transition-all before:duration-500 lg:before:hidden backdrop-blur-md bg-slate-900">
         <div className={"w-full flex justify-between items-center px-2 "}>
           <div className="flex justify-center lg:items-center border-b border-transparent bg-transparent transition-all lg:!bg-transparent lg:border-0  lg:border-cyan-500">
             <div className="block text-center grow-0">
