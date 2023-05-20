@@ -50,8 +50,6 @@ const GetActivityDataProvider: React.FC = ({ children }) => {
     provider2
   );
 
-  console.log("contract => ", RAFFLECONTRACT2);
-
   const getRaffleData = async () => {
     setRaffleDataState(true);
     const raffleDataLength = await RAFFLECONTRACT2.getRafflesLength();

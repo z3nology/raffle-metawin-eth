@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -11,12 +11,13 @@ import Countdown from "../components/Countdown";
 import { CardProps, WindowWithEthereum } from "../types";
 import { useWeb3React } from "@web3-react/core";
 import { error } from "console";
-import { errorAlert } from "./toastGroup";
+import { errorAlert, successAlert } from "./toastGroup";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { RAFFLECONTRACT_ADDR } from "../config";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
 import { RaffleDataContext } from "../context/RaffleDataProvider";
+import { PulseLoader } from "react-spinners";
 
 export default function Card({
   raffleId,
@@ -37,14 +38,11 @@ export default function Card({
   const router = useRouter();
   const currentTime = new Date();
   const currentTimeStamp = Math.floor(currentTime.getTime() / 1000);
-  console.log(currentTimeStamp);
-  console.log("endtime", endTime);
-
-  console.log("currentTime", currentTime);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingState, setLoadingState] = useState(false);
   const [joinCounts, setJoinCounts] = useState<Number>(0);
   const { account } = useWeb3React();
-  const { collectionName } = useContext(RaffleDataContext);
+  const { collectionName, getRaffleData } = useContext(RaffleDataContext);
 
   function openModal() {
     setIsModalOpen(true);
@@ -63,9 +61,9 @@ export default function Card({
   };
 
   // Get raffle contract
-    const provider2 = new ethers.providers.JsonRpcProvider(
-      "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
-    );
+  const provider2 = new ethers.providers.JsonRpcProvider(
+    "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
+  );
 
   const RAFFLECONTRACT = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
@@ -82,28 +80,56 @@ export default function Card({
     // }
   };
 
-  const getEntriesByRaffleId = async () => {
-    const data = await RAFFLECONTRACT.getEntriesBought(raffleId);
-    let joinData: any[] = [];
-    for (let i = 0; i < data.length; i++) {
-      if (
-        joinData.filter((items) => items.address === data[i]?.player).length ===
-        0
-      ) {
-        joinData.push({
-          id: i,
-          address: data[i].player,
-        });
+  const getEntriesByRaffleId = useCallback(async () => {
+    try {
+      const data = await RAFFLECONTRACT.getEntriesBought(raffleId);
+      const joinData: { id: number; address: string }[] = [];
+
+      for (let i = 0; i < data.length; i++) {
+        if (
+          joinData.filter((items) => items.address === data[i]?.player)
+            .length === 0
+        ) {
+          joinData.push({
+            id: i,
+            address: data[i].player,
+          });
+        }
       }
+      setJoinCounts(joinData.length);
+    } catch (err) {
+      console.error(err);
     }
-    setJoinCounts(Number(joinData.length));
-  };
+    // eslint-disable-next-line
+  }, [raffleId]);
 
   useEffect(() => {
     getEntriesByRaffleId();
     // eslint-disable-next-line
-  }, [raffleId]);
+  }, [getEntriesByRaffleId]);
 
+  const acceptRaffle = async () => {
+    setLoadingState(true);
+    await RAFFLECONTRACT.AcceptRaffle(raffleId)
+      .then((tx: any) => {
+        tx.wait()
+          .then(() => {
+            successAlert("Accepted this Raffle");
+            getRaffleData();
+            setLoadingState(false);
+          })
+          .catch(() => {
+            errorAlert("Accept Failed");
+            getRaffleData();
+            setLoadingState(false);
+          });
+      })
+      .catch(() => {
+        getRaffleData();
+        errorAlert("Accept Failed");
+        setLoadingState(false);
+      });
+  };
   return (
     <>
       <div className="rounded-xl relative bg-white hover:scale-[1.03] duration-300 transition-all z-10">
@@ -150,18 +176,29 @@ export default function Card({
             {collectionName} #{collateralId.join(",")}
           </h1>
 
-          {account === creator && endTime > Number(currentTime) && (
-            <div className="z-30 w-full px-3">
-              <button className="w-full rounded-full bg-blue-500 text-white uppercase text-[15px] text-center font-bold py-2 ">
-                Accept the raffle
-              </button>
-            </div>
+          {status === 0 && (
+            <>
+              <div className="z-30 w-full px-3">
+                <button
+                  className="w-full rounded-full bg-blue-500 text-white uppercase text-[15px] text-center font-bold py-2"
+                  onClick={() => acceptRaffle()}
+                >
+                  Accept the raffle
+                </button>
+              </div>
+            </>
           )}
           <p className="text-gray-400 text-[11px] font-bold text-center uppercase py-3 z-30">
             JOIN {joinCounts} METAWINNERS
           </p>
         </div>
       </div>
+      {loadingState && (
+        <div className="fixed top-0 bottom-0 left-0 right-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <PulseLoader color="white" />
+        </div>
+      )}
+
       <CompetitionModal
         isOpen={isModalOpen}
         closeModal={() => setIsModalOpen(false)}

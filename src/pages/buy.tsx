@@ -174,7 +174,6 @@ export default function Buy() {
     const raffleId = Number(localStorage.getItem("raffleId"));
     let count = 0;
     const data = await RAFFLECONTRACT.getEntriesBought(raffleId);
-    console.log("data", data);
     for (let i = data.length - 1; i >= 0; i--) {
       if (data[i].player === account) {
         count +=

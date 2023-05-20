@@ -18,7 +18,6 @@ export default function WalletModal({ isOpen, closeModal }: Props) {
       switchNetwork();
     }
     try {
-      console.log("clicked");
       await activate(injected);
       localStorage.setItem("isWalletConnected", "true");
     } catch (ex) {

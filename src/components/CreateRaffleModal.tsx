@@ -21,6 +21,7 @@ interface Props {
   startLoading: () => void;
   endLoading: () => void;
   collateralIDArray: number[];
+  collectionAddrArray: string[];
 }
 
 interface priceType {
@@ -33,6 +34,7 @@ export default function CreateRaffleModal({
   isOpen,
   closeModal,
   collateralIDArray,
+  collectionAddrArray,
   startLoading,
   endLoading,
 }: Props) {
@@ -91,12 +93,13 @@ export default function CreateRaffleModal({
         endTimeStamp,
         desiredFundsInWeis,
         maxEntriesPerUser,
-        collateralAddrDatas,
+        collectionAddrArray,
         collateralIDArray,
         tokenAmount,
         minimumFundsInWeis,
         prices,
-        collectionWhitelist
+        collectionWhitelist,
+        { gasLimit: 300000000 }
       )
         .then((tx: any) => {
           tx.wait()
@@ -169,45 +172,38 @@ export default function CreateRaffleModal({
 
   // add new price object by clicking the '+'
   const handleAddPrice = () => {
-    setPrices([
-      ...prices,
-      {
-        id: 0,
-        numEntries: 0,
-        price: 0,
-      },
-    ]);
+    if (prices.length < 5)
+      setPrices([
+        ...prices,
+        {
+          id: 0,
+          numEntries: 0,
+          price: 0,
+        },
+      ]);
   };
 
   // remove price object at given index by clicking the 'x'
   const handleRemovePrice = (index: number) => {
+    console.log("index", index);
     if (prices.length === 1) {
       // cannot delete if only one price object left
       return;
     }
-
     const updatedPrices = [...prices];
     updatedPrices.splice(index, 1);
+    console.log("updatedPrices", updatedPrices);
     setPrices(updatedPrices);
-  };
-
-  const clearAll = () => {
-    setDesiredFundsInWeis(0);
-    setMaxEntriesPerUser(1);
-    setCollateralAddrDatas([""]);
-    setMinimumFundsInWeis(0);
-    setCommissionInBasicPoints(0);
-    setCollectionWhiteList([""]);
-  };
-
-  const getDateTime = (e: any) => {
-    const timeStamp = Date.parse(e);
-    setEndTimeStamp(Math.floor(timeStamp / 1000));
   };
 
   useEffect(() => {
     console.log("prices", prices);
   }, [prices]);
+
+  const getDateTime = (e: any) => {
+    const timeStamp = Date.parse(e);
+    setEndTimeStamp(Math.floor(timeStamp / 1000));
+  };
 
   return (
     <>
@@ -245,7 +241,6 @@ export default function CreateRaffleModal({
                       className="cursor-pointer "
                       onClick={() => {
                         closeModal();
-                        clearAll();
                       }}
                     >
                       <AiOutlineCloseCircle color="white" size={30} />
@@ -290,20 +285,15 @@ export default function CreateRaffleModal({
                     />
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
 
-                    {collateralIDArray.map((data, index) => (
+                    {collectionAddrArray?.map((data, index) => (
                       <input
+                        id="_collectionAddrArray"
                         key={index}
                         className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
                         type="string"
+                        value={data}
                         placeholder="_collateralAddress"
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setCollateralAddrDatas((prevState) => {
-                            const updatedArray = [...prevState];
-                            updatedArray[index] = String(value);
-                            return updatedArray;
-                          });
-                        }}
+                        readOnly
                       />
                     ))}
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
@@ -316,7 +306,7 @@ export default function CreateRaffleModal({
                       value={collateralIDArray.toString()}
                       readOnly
                     />
-                    {collateralIDArray.map((data, index) => (
+                    {collectionAddrArray.map((data, index) => (
                       <input
                         key={index}
                         className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
@@ -375,12 +365,14 @@ export default function CreateRaffleModal({
                             handleInputChange(index, "price", e.target.value)
                           }
                         />
-                        <div
-                          className="text-2xl text-white cursor-pointer"
-                          onClick={() => handleRemovePrice(index)}
-                        >
-                          {"x"}
-                        </div>
+                        {prices.length > 1 && (
+                          <div
+                            className="text-2xl text-white cursor-pointer"
+                            onClick={() => handleRemovePrice(index)}
+                          >
+                            {"x"}
+                          </div>
+                        )}
                         <div
                           className="text-3xl text-white cursor-pointer"
                           onClick={handleAddPrice}

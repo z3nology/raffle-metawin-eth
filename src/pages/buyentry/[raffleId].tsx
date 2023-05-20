@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { RaffleDataContext } from "../../context/RaffleDataProvider";
@@ -30,8 +30,6 @@ export default function BuyEntry() {
   const [activityLoading, setActivityLoading] = useState(false);
 
   const { collectionName } = useContext(RaffleDataContext);
-
-  console.log("currentTime", currentTime);
 
   const settings = {
     dots: false,
@@ -68,6 +66,12 @@ export default function BuyEntry() {
     provider2
   );
 
+  const RAFFLECONTRACT2 = new ethers.Contract(
+    RAFFLECONTRACT_ADDR,
+    RaffleCOTRACTABI,
+    Signer
+  );
+
   const handleBuyFunc = async (id: number, price: number) => {
     const raffleId = localStorage.getItem("raffleId");
     const currentTimestamp: number = new Date().getTime();
@@ -82,7 +86,7 @@ export default function BuyEntry() {
           errorAlert("Bought too many entries");
         } else {
           setLoadingState(true);
-          await RAFFLECONTRACT.buyEntry(
+          await RAFFLECONTRACT2.buyEntry(
             Number(raffleId),
             id,
             "0x0000000000000000000000000000000000000000",
@@ -117,26 +121,44 @@ export default function BuyEntry() {
     }
   };
 
-  const getPriceData = async () => {
-    setPriceArrayLoading(true);
+  const getPriceData = useCallback(async () => {
+    try {
+      setPriceArrayLoading(true);
+      const data = await RAFFLECONTRACT.getPriceFromId(router.query.raffleId);
 
-    const priceData = [];
+      const priceData = [];
+      if (data.length !== 0) {
+        for (let i = 0; i < 5; i++) {
+          const price = data[i]?.price;
+          if (Number(price) !== 0) {
+            priceData.push({
+              id: i + 1,
+              numEntries: Number(data[i]?.numEntries),
+              price: Number(
+                parseFloat(ethers.utils.formatEther(price?.toString())).toFixed(
+                  6
+                )
+              ),
+            });
+          }
+        }
 
-    for (let i = 0; i < 5; i++) {
-      const data = await RAFFLECONTRACT.prices(router.query.raffleId, i);
-      if (Number(data?.numEntries) === 0 || !data) return;
-      priceData.push({
-        id: i + 1,
-        numEntries: Number(data.numEntries),
-        price: Number(
-          parseFloat(ethers.utils.formatEther(data.price.toString())).toFixed(6)
-        ),
-      });
+        setPriceArray(priceData);
+      } else {
+        setPriceArray([]);
+      }
+
+      setPriceArrayLoading(false);
+    } catch (err) {
+      console.error(err);
     }
+    // eslint-disable-next-line
+  }, [router.query.raffleId]);
 
-    // setPriceArray(priceData);
-    setPriceArrayLoading(false);
-  };
+  useEffect(() => {
+    getPriceData();
+    // eslint-disable-next-line
+  }, [getPriceData]);
 
   const getEntriesByRaffleId = async () => {
     setActivityLoading(true);
@@ -161,6 +183,7 @@ export default function BuyEntry() {
 
     setCurrentTicketCount(count);
     setEntriesHistory(history);
+    getPriceData();
     setActivityLoading(false);
   };
 
@@ -169,7 +192,7 @@ export default function BuyEntry() {
       getEntriesByRaffleId();
     }
     // eslint-disable-next-line
-  }, [account, router]);
+  }, [account]);
 
   useEffect(() => {
     setLoadingState(true);
@@ -180,19 +203,12 @@ export default function BuyEntry() {
       (data) => data.raffleId === Number(router.query.raffleId)
     );
 
-    console.log("databyid", dataById);
-
     setFilterDataByID(dataById);
     setCollateralIDArray(dataById[0]?.collateralId);
 
     setLoadingState(false);
     // eslint-disable-next-line
   }, [createdRaffleData, router.query.raffleId]);
-
-  useEffect(() => {
-    getPriceData();
-    // eslint-disable-next-line
-  }, [router.query.raffleId]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full mt-24 lg:mt-40 xl:px-[200px] 2xl:px-[300px] px-[10px] md:px-[100px]">
