@@ -1,97 +1,44 @@
-import { useWeb3React } from "@web3-react/core";
+import { useAccount } from "wagmi";
 import NftCard from "../components/NftCard";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CreateRaffleModal from "../components/CreateRaffleModal";
 import { PulseLoader } from "react-spinners";
 import { errorAlert } from "../components/toastGroup";
+import { CollateralIDArrayType, NftDataType } from "../types";
 
-type NftDataType = {
-  mintId: string;
-  title: string;
-  image: string;
-  listedForSale: boolean;
-  collectionId: string;
-  type: string;
-};
+const API_KEY =
+  "tHPhVlJYUBEVY9I94rh0uMX4BBpUSgc3mMJfpjRCdQI6A6yPLdsiyPvAk2f41VKb";
+const CHAIN = "sepolia";
+const FORMAT = "decimal";
+const LIMIT = "100";
+const NORMALIZE_METADATA = "false";
 
 export default function CreateRaffle() {
-  const { account } = useWeb3React();
-
+  const { address } = useAccount();
   const [nftData, setNftData] = useState<NftDataType[]>([]);
-  const [loadingState, setLoadingState] = useState<Boolean>(false);
-  const [collateralIDArray, setCollateralIDArray] = useState<number[]>([]);
-  const [collectionAddrArray, setCollectionAddrArray] = useState<string[]>([]);
+  const [loadingState, setLoadingState] = useState<boolean>(false);
+  const [collateralIDArray, setCollateralIDArray] = useState<
+    CollateralIDArrayType[]
+  >([]);
+  const [collectionAddrArray, setCollectionAddrArray] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getNfts = async (address: string) => {
-    setLoadingState(true);
-    const optionsGoerli = {
-      method: "GET",
-      url: `https://deep-index.moralis.io/api/v2/${address}/nft`,
-      params: {
-        chain: "sepolia",
-        format: "decimal",
-        limit: "100",
-        normalizeMetadata: "false",
-      },
-      headers: {
-        accept: "application/json",
-        "X-API-Key":
-          "tHPhVlJYUBEVY9I94rh0uMX4BBpUSgc3mMJfpjRCdQI6A6yPLdsiyPvAk2f41VKb", //Private-key
-      },
-    };
-
-    try {
-      const [responseGoerli] = await Promise.all([
-        axios.request(optionsGoerli),
+  const handleAddNFTsForRaffle = (nftId: number, collectionAddr: string) => {
+    const existingIndex = collateralIDArray.findIndex(
+      (data) => data.nftId === nftId
+    );
+    if (existingIndex !== -1) {
+      const newArray = [...collateralIDArray];
+      newArray.splice(existingIndex, 1);
+      setCollateralIDArray(newArray);
+    } else {
+      setCollateralIDArray([
+        ...collateralIDArray,
+        { nftId: nftId, collectionAddr: collectionAddr },
       ]);
-      const goerliNfts = responseGoerli.data.result.map((nft: any) => ({
-        ...nft,
-        type: "goerli",
-      }));
-
-      const combinedResults = [...goerliNfts];
-
-      const metadataResults = combinedResults.filter((n: any) => n.metadata);
-      const tokens = metadataResults.map((data: any) => {
-        let image = JSON.parse(data.metadata ?? "").image ?? "";
-
-        if (image.startsWith("ipfs://")) {
-          const pp = image.split("/");
-          const cid = pp.slice(2, 3)[0];
-          const filename = pp.slice(3).join("/");
-          const hostname = "https://ipfs.io/ipfs/";
-          image = hostname + cid + (filename ? "/" + filename : "");
-        }
-
-        return {
-          mintId: data.token_id,
-          title: data.name,
-          image: image,
-          listedForSale: false,
-          collectionId: data.token_address,
-          type: data.type,
-        };
-      });
-
-      console.log("tokens", tokens);
-
-      setNftData(tokens);
-      setLoadingState(false);
-      //   return metadataResults;
-    } catch (error) {
-      console.error(error);
     }
   };
-
-  useEffect(() => {
-    if (account) {
-      getNfts(account);
-    }
-    // eslint-disable-next-line
-  }, [account]);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
     if (collateralIDArray.length === 0) {
@@ -101,15 +48,67 @@ export default function CreateRaffle() {
     }
   };
 
-  const handleAddNFTsForRaffle = (nftId: number, collectionAddr: string) => {
-    setCollectionAddrArray([...collectionAddrArray, collectionAddr]);
+  useEffect(() => {
+    const getNfts = async () => {
+      setLoadingState(true);
 
-    if (collateralIDArray.includes(nftId)) {
-      setCollateralIDArray(collateralIDArray.filter((id) => id !== nftId));
-    } else {
-      setCollateralIDArray([...collateralIDArray, nftId]);
+      const options = {
+        method: "GET",
+        url: `https://deep-index.moralis.io/api/v2/${address}/nft`,
+        params: {
+          chain: CHAIN,
+          format: FORMAT,
+          limit: LIMIT,
+          normalizeMetadata: NORMALIZE_METADATA,
+        },
+        headers: {
+          accept: "application/json",
+          "X-API-Key": API_KEY,
+        },
+      };
+
+      try {
+        const [response] = await Promise.all([axios.request(options)]);
+        const { result } = response.data;
+
+        const combinedResults = result.map((nft: any) => ({
+          ...nft,
+          type: CHAIN,
+        }));
+
+        const metadataResults = combinedResults.filter((n: any) => n.metadata);
+        const tokens = metadataResults.map((data: any) => {
+          let image = JSON.parse(data.metadata ?? "").image ?? "";
+
+          if (image.startsWith("ipfs://")) {
+            const pp = image.split("/");
+            const cid = pp.slice(2, 3)[0];
+            const filename = pp.slice(3).join("/");
+            const hostname = "https://ipfs.io/ipfs/";
+            image = hostname + cid + (filename ? "/" + filename : "");
+          }
+
+          return {
+            mintId: data.token_id,
+            title: data.name,
+            image: image,
+            listedForSale: false,
+            collectionId: data.token_address,
+            type: data.type,
+          };
+        });
+
+        setNftData(tokens);
+        setLoadingState(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (address) {
+      getNfts();
     }
-  };
+  }, [address]);
 
   return (
     <div className="w-full px-2 mt-24 mb-10 md:px-10">
@@ -123,7 +122,7 @@ export default function CreateRaffle() {
       )}
       {!loadingState && (
         <>
-          <div className="w-full min-h-[30vh] flex items-center justify-center flex-col max-h-screen overflow-y-auto">
+          <div className="w-full min-h-[30vh] flex items-center justify-center flex-col">
             {nftData.length === 0 && (
               <div className="flex items-center justify-center w-full">
                 <h1 className="text-2xl font-normal text-center text-white uppercase">
@@ -131,7 +130,7 @@ export default function CreateRaffle() {
                 </h1>
               </div>
             )}
-            <div className="grid w-full grid-cols-2 gap-2 py-5 lg:gap-5 xl:grid-cols-7 2xl:grid-cols-9 lg:grid-cols-6 md:grid-cols-4">
+            <div className="grid w-full grid-cols-2 gap-4 px-3 py-5 md:px-10 lg:gap-5 xl:grid-cols-6 2xl:grid-cols-6 lg:grid-cols-6 md:grid-cols-4">
               {nftData?.map((data, index) => (
                 <NftCard
                   name={data.title}
@@ -150,7 +149,7 @@ export default function CreateRaffle() {
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-center w-full">
+          <div className="fixed left-0 right-0 flex items-center justify-center bottom-10 z-[41]">
             <button
               className="text-sm py-3 px-6 bg-slate-800 border-2 border-cyan-500 text-white rounded-full tracking-widest uppercase hover:bg-slate-900 hover:border-cyan-200 transition-all focus:bg-slate-800 focus:border-cyan-200 relative shadow-[0_0_2px_0] shadow-cyan-500 disabled:bg-slate-800 disabled:hover:bg-slate-800"
               onClick={() => handleOpenModal()}

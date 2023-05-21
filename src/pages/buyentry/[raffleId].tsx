@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { RaffleDataContext } from "../../context/RaffleDataProvider";
-import { useWeb3React } from "@web3-react/core";
 import Slider from "react-slick";
 import { ethers } from "ethers";
 import { RAFFLECONTRACT_ADDR, NFTCONTRACT_ADDR } from "../../config";
@@ -13,10 +12,10 @@ import { PulseLoader } from "react-spinners";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { CardProps, EntriesHistory, PriceDataType } from "../../types";
-import { route } from "next/dist/server/router";
+import { useAccount } from "wagmi";
 
 export default function BuyEntry() {
-  const { account } = useWeb3React();
+  const { address } = useAccount();
   const router = useRouter();
   const [currentTime] = useState(Math.floor(new Date().getTime() / 1000));
   const { createdRaffleData } = useContext(RaffleDataContext);
@@ -75,7 +74,7 @@ export default function BuyEntry() {
   const handleBuyFunc = async (id: number, price: number) => {
     const raffleId = localStorage.getItem("raffleId");
     const currentTimestamp: number = new Date().getTime();
-    if (account) {
+    if (address) {
       if (Number(filterDataByID[0].endTime) * 1000 > currentTimestamp) {
         if (filterDataByID[0].status !== 1) {
           errorAlert("Raffle is not in accepted");
@@ -120,114 +119,135 @@ export default function BuyEntry() {
       errorAlert("Please Connect wallet");
     }
   };
-
   const getPriceData = useCallback(async () => {
     try {
       setPriceArrayLoading(true);
       const data = await RAFFLECONTRACT.getPriceFromId(router.query.raffleId);
 
       const priceData = [];
-      if (data.length !== 0) {
-        for (let i = 0; i < 5; i++) {
-          const price = data[i]?.price;
-          if (Number(price) !== 0) {
-            priceData.push({
-              id: i + 1,
-              numEntries: Number(data[i]?.numEntries),
-              price: Number(
-                parseFloat(ethers.utils.formatEther(price?.toString())).toFixed(
-                  6
-                )
-              ),
-            });
-          }
+      for (let i = 0; i < 5 && i < data.length; i++) {
+        const price = data[i]?.price;
+        if (price && Number(price) !== 0) {
+          priceData.push({
+            id: i + 1,
+            numEntries: Number(data[i].numEntries),
+            price: Number(
+              parseFloat(ethers.utils.formatEther(price.toString())).toFixed(6)
+            ),
+          });
         }
-
-        setPriceArray(priceData);
-      } else {
-        setPriceArray([]);
       }
 
-      setPriceArrayLoading(false);
+      setPriceArray(priceData);
     } catch (err) {
       console.error(err);
+    } finally {
+      setPriceArrayLoading(false);
     }
     // eslint-disable-next-line
   }, [router.query.raffleId]);
 
   useEffect(() => {
+    let isMounted = true;
     getPriceData();
-    // eslint-disable-next-line
+    return () => {
+      isMounted = false;
+    };
   }, [getPriceData]);
 
   const getEntriesByRaffleId = async () => {
     setActivityLoading(true);
     let count = 0;
-    const history = [];
-    const data = await RAFFLECONTRACT.getEntriesBought(router.query.raffleId);
+    const history: any[] = [];
 
-    for (let i = data.length - 1; i >= 0; i--) {
-      const currentEntries =
-        Number(data[i].currentEntriesLength) -
-        (i === 0 ? 0 : Number(data[i - 1].currentEntriesLength));
+    if (router.query.raffleId) {
+      const data = await RAFFLECONTRACT.getEntriesBought(router.query.raffleId);
+      if (data.length !== 0) {
+        for (let i = data.length - 1; i >= 0; i--) {
+          if (
+            history.filter((hisData) => hisData.address === data[i]?.player)
+              .length === 0
+          ) {
+            const currentEntries =
+              data[i].player === (i === 0 ? data[i].player : data[i - 1].player)
+                ? Number(data[i].currentEntriesLength)
+                : Number(data[i].currentEntriesLength) -
+                  (i === 0 ? 0 : Number(data[i - 1].currentEntriesLength));
+            history.push({
+              address: data[i].player,
+              entriesCounts: currentEntries,
+            });
 
-      history.push({
-        address: data[i].player,
-        entriesCounts: currentEntries,
-      });
-
-      if (data[i].player === account) {
-        count += currentEntries;
+            if (data[i].player === address) {
+              count += currentEntries;
+            }
+          }
+        }
+        setCurrentTicketCount(count);
+        setEntriesHistory(history);
+        setActivityLoading(false);
       }
     }
-
-    setCurrentTicketCount(count);
-    setEntriesHistory(history);
-    getPriceData();
-    setActivityLoading(false);
   };
 
   useEffect(() => {
-    if (account) {
+    let isMounted = true;
+    if (address) {
       getEntriesByRaffleId();
     }
+    return () => {
+      isMounted = false;
+    };
     // eslint-disable-next-line
-  }, [account]);
+  }, [address, router]);
 
-  useEffect(() => {
+  const getRaffleCollaterialIds = async () => {
     setLoadingState(true);
 
-    if (!createdRaffleData) return;
+    if (!createdRaffleData) {
+      setLoadingState(false);
+      return;
+    }
 
     const dataById = createdRaffleData.filter(
       (data) => data.raffleId === Number(router.query.raffleId)
     );
 
     setFilterDataByID(dataById);
+
     setCollateralIDArray(dataById[0]?.collateralId);
 
     setLoadingState(false);
-    // eslint-disable-next-line
-  }, [createdRaffleData, router.query.raffleId]);
+  };
 
+  useEffect(() => {
+    let isMounted = true;
+    if (createdRaffleData) getRaffleCollaterialIds();
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line
+  }, [createdRaffleData]);
   return (
-    <div className="flex flex-col items-center justify-center w-full mt-24 lg:mt-40 xl:px-[200px] 2xl:px-[300px] px-[10px] md:px-[100px]">
+    <div className="flex flex-col items-center justify-center w-full mt-24 lg:mt-40 xl:px-[200px] 2xl:px-[300px] px-[10px] md:px-[100px] py-5">
       <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="w-full">
-          <Slider {...settings} className="rounded-lg" cssEase="ease-in-out">
-            {collateralIDArray?.map((data, index) => (
-              <img
-                src={
-                  "https://ipfs.io/ipfs/QmPzwKUJ4yVEXX62hkhVrZ4azXrrERcKwB4z1dyKKFJEva/" +
-                  data +
-                  ".png"
-                }
-                key={index}
-                className="object-cover w-full rounded-xl min-h-[27vh]"
-                alt=""
-              />
-            ))}
-          </Slider>
+        <div className="w-full px-5">
+          <div className="min-h-[30vh]">
+            <Slider {...settings} className="rounded-lg" cssEase="ease-in-out">
+              {collateralIDArray?.map((data, index) => (
+                <img
+                  src={
+                    "https://ipfs.io/ipfs/QmPzwKUJ4yVEXX62hkhVrZ4azXrrERcKwB4z1dyKKFJEva/" +
+                    data +
+                    ".png"
+                  }
+                  className="object-cover w-full rounded-xl min-h-[27vh]"
+                  alt=""
+                  key={index}
+                />
+              ))}
+            </Slider>
+          </div>
           <div className="w-full bg-[#04111d] rounded-lg mt-10 relative min-h-[10vh] max-h-[30vh] overflow-y-auto">
             <div className="w-full p-3 uppercase border-b-[1px] border-gray-800">
               <h1 className="text-xl font-normal text-white">Activity</h1>
@@ -263,7 +283,7 @@ export default function BuyEntry() {
             ))}
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-center px-5">
           <div className="flex items-center justify-start w-full gap-3">
             {collateralIDArray?.map((data, index) => (
               <div
@@ -275,7 +295,7 @@ export default function BuyEntry() {
               </div>
             ))}
           </div>
-          <div className="mt-3 text-white text-md border-t-[1px] border-gray-800 pt-2 text-left w-full">
+          <div className="mt-3 text-white text-md border-t-[1px] border-gray-800 pt-2 text-left w-full py-3">
             CloseTime : {` `}
             {filterDataByID[0]
               ? new Date(
@@ -288,7 +308,7 @@ export default function BuyEntry() {
             className="xl:max-w-[900px] rounded-2xl p-6 text-left shadow-xl transition-all
                 min-h-[70vh] z-20 bg-[#04111d] w-full"
           >
-            {filterDataByID[0]?.endTime < Number(currentTime) && (
+            {Number(filterDataByID[0]?.endTime) < Number(currentTime) && (
               <h1 className="mb-3 text-white text-3xl border-b-[1px] border-gray-800 uppercase text-center">
                 Competition Ended!
               </h1>
@@ -360,10 +380,10 @@ export default function BuyEntry() {
                 </div>
               ))}
             </div>
-            {filterDataByID[0]?.endTime < Number(currentTime) && (
+            {Number(filterDataByID[0]?.endTime) < Number(currentTime) && (
               <Link href="/" passHref>
                 <div className="flex items-center justify-center w-full">
-                  <div className="px-5 py-2 mt-5 mb-3 text-lg font-bold text-center text-white uppercase bg-blue-500 rounded-full cursor-pointer">
+                  <div className="px-5 py-2 mt-5 mb-3 text-lg font-normal text-center text-white uppercase bg-blue-500 rounded-full cursor-pointer">
                     Enter another
                   </div>
                 </div>

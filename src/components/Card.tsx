@@ -9,7 +9,6 @@ import CompetitionModal from "./CompetitionModal";
 import Link from "next/link";
 import Countdown from "../components/Countdown";
 import { CardProps, WindowWithEthereum } from "../types";
-import { useWeb3React } from "@web3-react/core";
 import { error } from "console";
 import { errorAlert, successAlert } from "./toastGroup";
 import { useRouter } from "next/router";
@@ -41,12 +40,7 @@ export default function Card({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
   const [joinCounts, setJoinCounts] = useState<Number>(0);
-  const { account } = useWeb3React();
   const { collectionName, getRaffleData } = useContext(RaffleDataContext);
-
-  function openModal() {
-    setIsModalOpen(true);
-  }
 
   const settings = {
     dots: false,
@@ -65,10 +59,29 @@ export default function Card({
     "https://sepolia.infura.io/v3/fe5e2547673f42af99e7bd9dc2d8de1e"
   );
 
+  interface WindowWithEthereum extends Window {
+    ethereum?: any;
+  }
+
+  // Get raffle contract
+  const provider =
+    typeof window !== "undefined" && (window as WindowWithEthereum).ethereum
+      ? new ethers.providers.Web3Provider(
+          (window as WindowWithEthereum).ethereum
+        )
+      : null;
+  const Signer = provider?.getSigner();
+
   const RAFFLECONTRACT = new ethers.Contract(
     RAFFLECONTRACT_ADDR,
     RaffleCOTRACTABI,
     provider2
+  );
+
+  const RAFFLECONTRACT2 = new ethers.Contract(
+    RAFFLECONTRACT_ADDR,
+    RaffleCOTRACTABI,
+    Signer
   );
 
   const handleClickBuyEntry = async () => {
@@ -110,7 +123,7 @@ export default function Card({
 
   const acceptRaffle = async () => {
     setLoadingState(true);
-    await RAFFLECONTRACT.AcceptRaffle(raffleId)
+    await RAFFLECONTRACT2.AcceptRaffle(raffleId)
       .then((tx: any) => {
         tx.wait()
           .then(() => {

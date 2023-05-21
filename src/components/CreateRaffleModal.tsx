@@ -1,17 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { Fragment, useEffect, useState } from "react";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
 import { RAFFLECONTRACT_ADDR } from "../config";
 
 import { AiOutlineCloseCircle } from "react-icons/ai";
-import { GrAdd } from "react-icons/gr";
-import { max } from "moment";
 import { errorAlert, successAlert } from "./toastGroup";
-import { WindowWithEthereum } from "../types";
+import { CollateralIDArrayType, WindowWithEthereum } from "../types";
 import { useRouter } from "next/router";
 import { RaffleDataContext } from "../context/RaffleDataProvider";
 
@@ -20,7 +17,7 @@ interface Props {
   closeModal: () => void;
   startLoading: () => void;
   endLoading: () => void;
-  collateralIDArray: number[];
+  collateralIDArray: CollateralIDArrayType[];
   collectionAddrArray: string[];
 }
 
@@ -38,24 +35,15 @@ export default function CreateRaffleModal({
   startLoading,
   endLoading,
 }: Props) {
-  const { account } = useWeb3React();
   const router = useRouter();
-
-  const [loadingState, setLoadingState] = useState<boolean>(false);
   const [endTimeStamp, setEndTimeStamp] = useState(0);
   const [desiredFundsInWeis, setDesiredFundsInWeis] = useState<number>(0);
   const [maxEntriesPerUser, setMaxEntriesPerUser] = useState<number>(1);
-  const [collateralAddrDatas, setCollateralAddrDatas] = useState<string[]>([
-    "",
-  ]);
   const [tokenAmount, setTokenAmount] = useState<number[]>([0]);
-
   const [minimumFundsInWeis, setMinimumFundsInWeis] = useState<number>(0);
   const [prices, setPrices] = useState<priceType[]>([
     { id: 1, numEntries: 1, price: 0 },
   ]);
-  const [commissionInBasicPoints, setCommissionInBasicPoints] =
-    useState<number>(0);
   const [collectionWhitelist, setCollectionWhiteList] = useState<string[]>([
     "",
   ]);
@@ -79,6 +67,12 @@ export default function CreateRaffleModal({
 
   // Define the createRaffle function
   const handleCreateRaffleFunc = async () => {
+    const tokenIdData: Number[] = collateralIDArray?.map((item) =>
+      Number(item.nftId)
+    );
+    const collectionData = collateralIDArray?.map(
+      (item) => `${item.collectionAddr}`
+    );
     const currentTimestamp = Math.floor(Date.now() / 1000);
     if (endTimeStamp < currentTimestamp) {
       errorAlert("EndTime must be!");
@@ -93,13 +87,12 @@ export default function CreateRaffleModal({
         endTimeStamp,
         desiredFundsInWeis,
         maxEntriesPerUser,
-        collectionAddrArray,
-        collateralIDArray,
+        collectionData,
+        tokenIdData,
         tokenAmount,
         minimumFundsInWeis,
         prices,
-        collectionWhitelist,
-        { gasLimit: 300000000 }
+        collectionWhitelist
       )
         .then((tx: any) => {
           tx.wait()
@@ -185,20 +178,14 @@ export default function CreateRaffleModal({
 
   // remove price object at given index by clicking the 'x'
   const handleRemovePrice = (index: number) => {
-    console.log("index", index);
     if (prices.length === 1) {
       // cannot delete if only one price object left
       return;
     }
     const updatedPrices = [...prices];
     updatedPrices.splice(index, 1);
-    console.log("updatedPrices", updatedPrices);
     setPrices(updatedPrices);
   };
-
-  useEffect(() => {
-    console.log("prices", prices);
-  }, [prices]);
 
   const getDateTime = (e: any) => {
     const timeStamp = Date.parse(e);
@@ -285,13 +272,13 @@ export default function CreateRaffleModal({
                     />
                     <div className="w-full border-[2px] border-dashed border-gray-700" />
 
-                    {collectionAddrArray?.map((data, index) => (
+                    {collateralIDArray?.map((data, index) => (
                       <input
                         id="_collectionAddrArray"
                         key={index}
                         className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"
                         type="string"
-                        value={data}
+                        value={data.collectionAddr}
                         placeholder="_collateralAddress"
                         readOnly
                       />
@@ -303,10 +290,10 @@ export default function CreateRaffleModal({
                       type="text"
                       placeholder="_collateralId"
                       id="_collateralId"
-                      value={collateralIDArray.toString()}
+                      value={collateralIDArray.map((item) => `${item.nftId}`)}
                       readOnly
                     />
-                    {collectionAddrArray.map((data, index) => (
+                    {collateralIDArray.map((data, index) => (
                       <input
                         key={index}
                         className="w-full px-3 py-2 text-white bg-gray-800 rounded-lg outline-none"

@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useWeb3React } from "@web3-react/core";
 import { CardProps, RaffleDataContextValue } from "../types";
 import { ethers } from "ethers";
 import { RAFFLECONTRACT_ADDR, NFTCONTRACT_ADDR } from "../config";
@@ -16,7 +15,6 @@ export const RaffleDataContext = createContext<RaffleDataContextValue>({
 });
 
 const GetActivityDataProvider: React.FC = ({ children }) => {
-  const { account } = useWeb3React();
   const router = useRouter();
   const [raffleDataState, setRaffleDataState] = useState(false);
   const [collectionName, setCollectionName] = useState("");
