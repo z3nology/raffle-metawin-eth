@@ -37,3 +37,17 @@ export type EntriesHistory = {
   address: string;
   entriesCounts: number;
 };
+
+export type NftDataType = {
+  mintId: string;
+  title: string;
+  image: string;
+  listedForSale: boolean;
+  collectionId: string;
+  type: string;
+};
+
+export type CollateralIDArrayType = {
+  nftId: Number;
+  collectionAddr: string;
+};

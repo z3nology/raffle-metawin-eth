@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { Dialog, Transition } from "@headlessui/react";
-import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { Fragment, useState } from "react";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
@@ -34,7 +33,6 @@ export default function CompetitionModal({
   collateralAddress,
   collateralId,
 }: Props) {
-  const { account } = useWeb3React();
   const [raffleDataState, setRaffleDataState] = useState(false);
   interface WindowWithEthereum extends Window {
     ethereum?: any;

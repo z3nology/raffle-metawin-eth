@@ -1,14 +1,10 @@
-import { useEffect, useState, useContext } from "react";
+import { useState } from "react";
 import { default as ReactCountdown } from "react-countdown";
 import { ethers } from "ethers";
-import { RaffleDataContext } from "../context/RaffleDataProvider";
 import { RAFFLECONTRACT_ADDR } from "../config";
 import RaffleCOTRACTABI from "../../public/abi/raffleContract_abi.json";
-import { errorAlert, successAlert } from "./toastGroup";
-import { useWeb3React } from "@web3-react/core";
 
 const Countdown = ({ endDateTime, raffleId, winner }) => {
-  const { account } = useWeb3React();
   const [endTimeState, setEndTimeState] = useState(false);
 
   let Signer;

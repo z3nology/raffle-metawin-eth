@@ -6,6 +6,7 @@
   --hff: 'Heebo', sans-serif;
   --bff: 'Nunito', sans-serif;
 }
+
 @import url('https://fonts.googleapis.com/css2?family=Play&display=swap');
 
 html {
@@ -13,6 +14,7 @@ html {
   scroll-behavior: smooth !important;
 
 }
+
 body {
   background-color: black !important;
   overflow-y: scroll;
@@ -24,4 +26,8 @@ body {
   border-radius: 7px;
   padding: 7px 5px;
   color: #6E7683;
+}
+
+div[data-index="0"] {
+  opacity: 1 !important;
 }
