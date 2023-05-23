@@ -7,8 +7,11 @@ import { FiMenu } from "react-icons/fi";
 import { IoMdClose } from "react-icons/io";
 import { DiscordIcon } from "../svgIcons";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
+import { OwnerAddress } from "../../config";
 
 export default function Header() {
+  const { address } = useAccount();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -39,6 +42,19 @@ export default function Header() {
           </div>
           <div className="justify-center hidden gap-5 text-center md:flex lg:text-left lg:mx-0 lg:pl-4">
             <div className="flex items-center justify-center gap-4">
+              {address === OwnerAddress && (
+                <Link href={"/admin"} passHref>
+                  <li
+                    className={`text-lg font-normal ${
+                      router.pathname === "/admin"
+                        ? "text-cyan-500"
+                        : "text-white"
+                    } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+                  >
+                    Admin page
+                  </li>
+                </Link>
+              )}
               <Link href={"/"} passHref>
                 <li
                   className={`text-lg font-normal ${
@@ -48,6 +64,7 @@ export default function Header() {
                   competition
                 </li>
               </Link>
+
               <Link href={"/createraffle"} passHref>
                 <li
                   className={`text-lg font-normal ${

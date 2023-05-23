@@ -31,7 +31,6 @@ export default function CreateRaffleModal({
   isOpen,
   closeModal,
   collateralIDArray,
-  collectionAddrArray,
   startLoading,
   endLoading,
 }: Props) {
