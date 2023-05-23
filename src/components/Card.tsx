@@ -5,11 +5,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import CompetitionModal from "./CompetitionModal";
-import Link from "next/link";
 import Countdown from "../components/Countdown";
-import { CardProps, WindowWithEthereum } from "../types";
-import { error } from "console";
+import { CardProps } from "../types";
 import { errorAlert, successAlert } from "./toastGroup";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
@@ -35,8 +32,6 @@ export default function Card({
   type,
 }: CardProps) {
   const router = useRouter();
-  const currentTime = new Date();
-  const currentTimeStamp = Math.floor(currentTime.getTime() / 1000);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
   const [joinCounts, setJoinCounts] = useState<Number>(0);
@@ -143,6 +138,7 @@ export default function Card({
         setLoadingState(false);
       });
   };
+
   return (
     <>
       <div className="rounded-xl relative bg-white hover:scale-[1.03] duration-300 transition-all z-10">
@@ -189,7 +185,7 @@ export default function Card({
             {collectionName} #{collateralId.join(",")}
           </h1>
 
-          {status === 0 && (
+          {status === 0 && Number(endTime) > Math.floor(Date.now() / 1000) && (
             <>
               <div className="z-30 w-full px-3">
                 <button
@@ -211,24 +207,6 @@ export default function Card({
           <PulseLoader color="white" />
         </div>
       )}
-
-      <CompetitionModal
-        isOpen={isModalOpen}
-        closeModal={() => setIsModalOpen(false)}
-        raffleId={raffleId}
-        amountRaised={amountRaised}
-        cancellingDate={cancellingDate}
-        collateralAddress={collateralAddress}
-        collateralId={collateralId}
-        collectionWhitelist={collectionWhitelist}
-        creator={creator}
-        endTime={endTime}
-        entriesLength={entriesLength}
-        maxEntries={maxEntries}
-        randomNumber={randomNumber}
-        status={status}
-        type={type}
-      />
     </>
   );
 }
