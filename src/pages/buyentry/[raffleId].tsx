@@ -193,14 +193,12 @@ export default function BuyEntry() {
 
   useEffect(() => {
     let isMounted = true;
-    if (address) {
-      getEntriesByRaffleId();
-    }
+    getEntriesByRaffleId();
     return () => {
       isMounted = false;
     };
     // eslint-disable-next-line
-  }, [address, router]);
+  }, [router]);
 
   const getRaffleCollaterialIds = async () => {
     setLoadingState(true);

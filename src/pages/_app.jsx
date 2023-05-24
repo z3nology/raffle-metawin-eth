@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { ToastContainer } from "react-toastify";
 import "../styles/style.scss";
 
@@ -14,7 +15,7 @@ import { mainnet, polygon, optimism, arbitrum, sepolia } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
-function StakingApp({ Component, pageProps }) {
+function MetaWinApp({ Component, pageProps }) {
   const { chains, publicClient } = configureChains(
     [sepolia],
     [
@@ -42,6 +43,13 @@ function StakingApp({ Component, pageProps }) {
         animate={{ opacity: 1 }}
         transition={{ ease: "easeInOut", duration: 0.9, delay: 0.2 }}
       >
+        <Head>
+          <title>
+            MetaWin: Win NFTs. Secure, Decebtralizated NFT & Crypto prizes
+            metawin.com
+          </title>
+          <link rel="icon" type="image/x-icon" href="/img/logo.png" />
+        </Head>
         <WagmiConfig config={wagmiConfig}>
           <RainbowKitProvider chains={chains}>
             <Header />
@@ -71,4 +79,4 @@ function StakingApp({ Component, pageProps }) {
   );
 }
 
-export default StakingApp;
+export default MetaWinApp;

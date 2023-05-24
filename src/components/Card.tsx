@@ -112,7 +112,20 @@ export default function Card({
   }, [raffleId]);
 
   useEffect(() => {
-    getEntriesByRaffleId();
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        await getEntriesByRaffleId();
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
     // eslint-disable-next-line
   }, [getEntriesByRaffleId]);
 

@@ -2,7 +2,6 @@ import { useContext } from "react";
 import Card from "../components/Card";
 import { PulseLoader } from "react-spinners";
 import { RaffleDataContext } from "../context/RaffleDataProvider";
-import { useAccount } from "wagmi";
 
 export default function Admin() {
   const { createdRaffleData, raffleDataState } = useContext(RaffleDataContext);
@@ -10,7 +9,7 @@ export default function Admin() {
   return (
     <div className="mt-24 min-h-[20vh] px-5">
       <h1 className="block mb-2 text-lg font-bold leading-none tracking-wider text-white uppercase lg:text-2xl category-title">
-        Admin Page
+        {`Admin Page`}
       </h1>
       {createdRaffleData?.filter(
         (data) =>
