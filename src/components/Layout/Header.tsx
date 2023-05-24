@@ -41,42 +41,47 @@ export default function Header() {
             </div>
           </div>
           <div className="justify-center hidden gap-5 text-center md:flex lg:text-left lg:mx-0 lg:pl-4">
-            <div className="flex items-center justify-center gap-4">
-              {address === OwnerAddress && (
-                <Link href={"/admin"} passHref>
-                  <li
-                    className={`text-lg font-normal ${
-                      router.pathname === "/admin"
-                        ? "text-cyan-500"
-                        : "text-white"
-                    } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
-                  >
-                    Admin page
-                  </li>
-                </Link>
-              )}
+            <ul className="flex items-center justify-center gap-4">
               <Link href={"/"} passHref>
                 <li
+                  key={"competition"}
                   className={`text-lg font-normal ${
                     router.pathname === "/" ? "text-cyan-500" : "text-white"
                   } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+                  onClick={() => setMenuOpen(false)}
                 >
                   competition
                 </li>
               </Link>
-
               <Link href={"/createraffle"} passHref>
                 <li
+                  key={"createraffle"}
                   className={`text-lg font-normal ${
                     router.pathname === "/createraffle"
                       ? "text-cyan-500"
                       : "text-white"
                   } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+                  onClick={() => setMenuOpen(false)}
                 >
                   create raffle
                 </li>
               </Link>
-            </div>
+              {address === OwnerAddress && (
+                <Link href={"/admin"} passHref>
+                  <li
+                    key={"admin"}
+                    className={`text-lg font-normal ${
+                      router.pathname === "/admin"
+                        ? "text-cyan-500"
+                        : "text-white"
+                    } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Admin page
+                  </li>
+                </Link>
+              )}
+            </ul>
           </div>
           <ConnectButton
             accountStatus={{
@@ -105,9 +110,10 @@ export default function Header() {
           </div>
           <div className="flex flex-col items-center justify-center w-full">
             <div className="flex flex-col justify-center gap-5 text-center lg:text-left lg:mx-0 lg:pl-4">
-              <div className="flex flex-col items-center justify-center gap-10">
+              <ul className="flex flex-col items-center justify-center gap-10">
                 <Link href={"/"} passHref>
                   <li
+                    key={"competition"}
                     className={`text-lg font-normal ${
                       router.pathname === "/" ? "text-cyan-500" : "text-white"
                     } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
@@ -118,6 +124,7 @@ export default function Header() {
                 </Link>
                 <Link href={"/createraffle"} passHref>
                   <li
+                    key={"createraffle"}
                     className={`text-lg font-normal ${
                       router.pathname === "/createraffle"
                         ? "text-cyan-500"
@@ -128,7 +135,22 @@ export default function Header() {
                     create raffle
                   </li>
                 </Link>
-              </div>
+                {address === OwnerAddress && (
+                  <Link href={"/admin"} passHref>
+                    <li
+                      key={"admin"}
+                      className={`text-lg font-normal ${
+                        router.pathname === "/admin"
+                          ? "text-cyan-500"
+                          : "text-white"
+                      } uppercase list-none transition-all duration-300 cursor-pointer hover:text-cyan-500`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Admin page
+                    </li>
+                  </Link>
+                )}
+              </ul>
               <ConnectButton
                 accountStatus={{
                   smallScreen: "avatar",

@@ -1,4 +1,3 @@
-import Head from "next/head";
 import { useContext } from "react";
 import Card from "../components/Card";
 import { PulseLoader } from "react-spinners";
@@ -11,12 +10,6 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>
-          MetaWin: Win NFTs. Secure, Decebtralizated NFT & Crypto prizes
-          metawin.com
-        </title>
-      </Head>
       <div className="mt-24 min-h-[20vh] px-5">
         <h1 className="block mb-2 text-lg font-bold leading-none tracking-wider text-white uppercase lg:text-2xl category-title">
           Live Raffles

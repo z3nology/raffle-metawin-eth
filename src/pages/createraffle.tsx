@@ -14,7 +14,7 @@ const FORMAT = "decimal";
 const LIMIT = "100";
 const NORMALIZE_METADATA = "false";
 
-export default function CreateRaffle() {
+export default function Create() {
   const { address } = useAccount();
   const [nftData, setNftData] = useState<NftDataType[]>([]);
   const [loadingState, setLoadingState] = useState<boolean>(false);
